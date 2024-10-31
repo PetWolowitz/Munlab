@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from rest_framework import serializers # type: ignore
 from .models import CustomUser
 from django.contrib.auth import get_user_model
 
