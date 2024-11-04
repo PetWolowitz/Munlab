@@ -1,0 +1,18 @@
+{
+    "cSpell.words": [
+        "Attivita",
+        "Disponibilita",
+        "gestione",
+        "length",
+        "Prenotazione",
+        "prenotazioni",
+        "STATO"
+    ],
+
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#d65a98",
+        "titleBar.activeBackground": "#dc695c",
+        "titleBar.activeForeground": "#090101",
+        
+    }
+}

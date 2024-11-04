@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     "rest_framework", # Aggiunta dell'applicazione rest_framework al progetto
     "corsheaders", # Aggiunta dell'applicazione corsheaders al progetto
     "users", # Aggiunta dell'app personalizzata per gestire gli utenti.
-    "activities", # Aggiunta dell'app per gestire le attività.
+    "gestione", # Aggiunta dell'applicazione gestione al progetto
+    
 
 ]
 
