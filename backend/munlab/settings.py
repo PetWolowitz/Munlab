@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-23!0%vc1wo6vlwi%!w1f%#!2(3j7g0n-0a1*xve7v=9ddrb8*#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 # Aggiunta del modello utente personalizzato
 AUTH_USER_MODEL = 'users.CustomUser'
 # Configurazione CORS
