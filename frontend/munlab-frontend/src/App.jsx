@@ -11,6 +11,7 @@ import Activities from './pages/Activities';
 import Bookings from './pages/Bookings';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/variables.css';
+import './styles/layout.css';
 
 const GOOGLE_CLIENT_ID = "IL-TUO-GOOGLE-CLIENT-ID";
 const FACEBOOK_APP_ID = "IL-TUO-FACEBOOK-APP-ID";

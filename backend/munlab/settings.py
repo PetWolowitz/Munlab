@@ -30,8 +30,11 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 AUTH_USER_MODEL = 'users.CustomUser'
 # Configurazione CORS
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Permetti al frontend React di fare richieste
+    "http://localhost:3000",
+    "http://localhost:5173",  # Il tuo frontend Vite
 ]
+
+CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

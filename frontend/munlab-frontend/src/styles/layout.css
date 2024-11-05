@@ -1,0 +1,80 @@
+/* src/styles/layout.css */
+.page-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background-color: var(--background-color);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 500px;
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.home-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.hero-section {
+    padding: 6rem 0;
+    background-color: var(--primary-color);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 4rem 0;
+    }
+    
+    .auth-card {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section {
+        padding: 3rem 0;
+    }
+}
+
+/* Layout componenti comuni */
+.centered-form-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.section-container {
+    padding: 4rem 0;
+}
+
+@media (min-width: 992px) {
+    .section-container {
+        padding: 6rem 0;
+    }
+}
+
+/* Card layouts */
+.feature-card {
+    height: 100%;
+    border: none;
+    border-radius: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
