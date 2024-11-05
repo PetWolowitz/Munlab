@@ -1,0 +1,20 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cappello da artista/ceramista -->
+  <path d="M12 32C12 18.745 22.745 8 36 8C49.255 8 60 18.745 60 32" fill="#8B4513"/>
+  
+  <!-- Testa -->
+  <circle cx="32" cy="32" r="20" fill="#D2691E"/>
+  
+  <!-- Occhiali -->
+  <path d="M24 32C24 29.791 25.791 28 28 28H36C38.209 28 40 29.791 40 32" stroke="#5D3A1F" stroke-width="2"/>
+  
+  <!-- Grembiule da ceramista -->
+  <path d="M16 40H48V56C48 58.209 46.209 60 44 60H20C17.791 60 16 58.209 16 56V40Z" fill="#CD853F"/>
+  
+  <!-- Dettagli grembiule -->
+  <path d="M24 40V60" stroke="#8B4513" stroke-width="2"/>
+  <path d="M40 40V60" stroke="#8B4513" stroke-width="2"/>
+  
+  <!-- Spallacci -->
+  <path d="M20 40C20 32 28 28 32 28C36 28 44 32 44 40" stroke="#8B4513" stroke-width="2"/>
+</svg>

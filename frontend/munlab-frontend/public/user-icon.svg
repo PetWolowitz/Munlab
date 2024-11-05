@@ -1,0 +1,14 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Testa -->
+  <circle cx="32" cy="24" r="16" fill="#D2691E"/>
+  
+  <!-- Corpo/Vaso -->
+  <path d="M16 44C16 36 24 32 32 32C40 32 48 36 48 44V56C48 58.209 46.209 60 44 60H20C17.791 60 16 58.209 16 56V44Z" fill="#CD853F"/>
+  
+  <!-- Dettagli vaso -->
+  <path d="M20 48H44" stroke="#8B4513" stroke-width="2"/>
+  <path d="M24 40H40" stroke="#8B4513" stroke-width="2"/>
+  
+  <!-- Spirale (simbolo ceramica) -->
+  <path d="M28 50C28 52 30 54 32 54C34 54 36 52 36 50C36 48 34 46 32 46C30 46 28 48 28 50Z" stroke="#8B4513" stroke-width="2" fill="none"/>
+</svg>

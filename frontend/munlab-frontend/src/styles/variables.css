@@ -1,0 +1,15 @@
+:root {
+    --primary-color: #8B4513;  /* Marrone terra */
+    --secondary-color: #D2691E; /* Marrone chiaro */
+    --accent-color: #CD853F;   /* Terra bruciata */
+    --background-color: #FFF5E6; /* Beige chiaro */
+    --text-color: #3E2723;     /* Marrone scuro */
+    --error-color: #D32F2F;    /* Rosso errore */
+    --success-color: #388E3C;  /* Verde successo */
+}
+
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
