@@ -1,70 +1,81 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { FaTools, FaGraduationCap, FaClock } from 'react-icons/fa';
+import axios from 'axios';
 
 const PublicHome = () => {
+  const [activities, setActivities] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/activities/');
+        setActivities(response.data);
+      } catch (error) {
+        console.error('Error fetching activities:', error);
+      }
+    };
+
+    fetchActivities();
+  }, []);
 
   return (
     <div className="page-container">
       {/* Hero Section */}
       <section className="hero-section">
-        <Container>
-          <Row className="align-items-center justify-content-center text-center">
-            <Col lg={8} md={10}>
-              <h1 className="display-4 fw-bold mb-3">Munlab</h1>
-              <h2 className="h3 mb-4">Museo dell'Argilla</h2>
-              <p className="lead mb-4">
-                Scopri l'arte della terracotta attraverso laboratori interattivi ed esperienze uniche
-              </p>
-              <Button 
-                variant="light" 
-                size="lg"
-                onClick={() => navigate('/auth')}
-                className="px-4 py-2"
-              >
-                Inizia l'Esperienza
-              </Button>
-            </Col>
-          </Row>
-        </Container>
+        <div className="hero-content">
+          <Container>
+            <Row className="justify-content-center text-center">
+              <Col md={8}>
+                <h1 className="display-4 fw-bold mb-4">Munlab</h1>
+                <h2 className="h3 mb-4">Museo dell'Argilla</h2>
+                <p className="lead mb-4">
+                  Scopri l'arte della terracotta attraverso laboratori interattivi ed esperienze uniche
+                </p>
+                <Button 
+                  variant="light" 
+                  size="lg"
+                  onClick={() => navigate('/auth')}
+                  className="px-4 py-2"
+                >
+                  Scopri le Attività
+                </Button>
+              </Col>
+            </Row>
+          </Container>
+        </div>
       </section>
 
-      {/* Features Section */}
-      <section className="section-container">
+      {/* Activities Section */}
+      <section className="activities-section">
         <Container>
           <h2 className="text-center mb-5">Le Nostre Attività</h2>
           <Row className="g-4">
-            {[
-              {
-                title: 'Laboratori Didattici',
-                description: 'Esplora l\'arte della ceramica con i nostri esperti',
-                icon: '🎨'
-              },
-              {
-                title: 'Visite Guidate',
-                description: 'Scopri la storia e le tecniche della lavorazione',
-                icon: '🏺'
-              },
-              {
-                title: 'Workshop Speciali',
-                description: 'Partecipa a eventi esclusivi con artisti internazionali',
-                icon: '✨'
-              }
-            ].map((feature, index) => (
-              <Col key={index} md={6} lg={4}>
-                <Card className="feature-card h-100 text-center p-4">
+            {activities.map((activity) => (
+              <Col md={4} key={activity.id}>
+                <Card className="activity-card h-100">
+                  {activity.immagine && (
+                    <Card.Img 
+                      variant="top" 
+                      src={`http://127.0.0.1:8000${activity.immagine}`}
+                      className="activity-image"
+                      alt={activity.nome}
+                    />
+                  )}
                   <Card.Body>
-                    <div className="display-4 mb-3">{feature.icon}</div>
-                    <Card.Title className="h4 mb-3">{feature.title}</Card.Title>
-                    <Card.Text>{feature.description}</Card.Text>
-                    <Button 
-                      variant="outline-primary"
-                      onClick={() => navigate('/auth')}
-                      className="mt-3"
-                    >
-                      Prenota
-                    </Button>
+                    <Card.Title>{activity.nome}</Card.Title>
+                    <Card.Text>{activity.descrizione}</Card.Text>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span className="text-muted">€{activity.costo}</span>
+                      <Button 
+                        variant="primary"
+                        onClick={() => navigate('/auth')}
+                      >
+                        Prenota
+                      </Button>
+                    </div>
                   </Card.Body>
                 </Card>
               </Col>
@@ -73,45 +84,74 @@ const PublicHome = () => {
         </Container>
       </section>
 
-      {/* Info Section */}
+      {/* Why Choose Us Section */}
       <section className="section-container bg-light">
         <Container>
-          <Row className="justify-content-center text-center">
-            <Col lg={8}>
-              <h2 className="mb-4">Perché Scegliere Munlab?</h2>
-              <Row className="g-4">
-                {[
-                  { title: 'Esperienza', text: 'Istruttori qualificati', icon: '👨‍🏫' },
-                  { title: 'Attrezzature', text: 'Strumenti professionali', icon: '🔨' },
-                  { title: 'Flessibilità', text: 'Orari personalizzabili', icon: '📅' }
-                ].map((item, index) => (
-                  <Col key={index} md={4}>
-                    <div className="p-4">
-                      <div className="display-4 mb-3">{item.icon}</div>
-                      <h3 className="h5 mb-2">{item.title}</h3>
-                      <p className="text-muted mb-0">{item.text}</p>
-                    </div>
-                  </Col>
-                ))}
-              </Row>
+          <h2 className="text-center mb-5">Perché Scegliere Munlab</h2>
+          <Row className="g-4">
+            <Col md={4}>
+              <div className="feature-card p-4 text-center">
+                <FaTools className="display-4 mb-3 text-primary" />
+                <h3 className="h5">Strumenti Professionali</h3>
+                <p>Attrezzature di alta qualità per la lavorazione dell'argilla</p>
+              </div>
+            </Col>
+            <Col md={4}>
+              <div className="feature-card p-4 text-center">
+                <FaGraduationCap className="display-4 mb-3 text-primary" />
+                <h3 className="h5">Esperti del Settore</h3>
+                <p>Maestri ceramisti con anni di esperienza</p>
+              </div>
+            </Col>
+            <Col md={4}>
+              <div className="feature-card p-4 text-center">
+                <FaClock className="display-4 mb-3 text-primary" />
+                <h3 className="h5">Flessibilità</h3>
+                <p>Orari personalizzabili e corsi su misura</p>
+              </div>
             </Col>
           </Row>
         </Container>
       </section>
 
-      {/* Footer */}
-      <footer className="py-4 bg-dark text-white">
+      {/* Newsletter Section */}
+      <section className="newsletter-section">
         <Container>
           <Row className="justify-content-center">
             <Col md={8} className="text-center">
-              <h5 className="mb-3">Munlab - Museo dell'Argilla</h5>
-              <p className="mb-1">Email: info@munlab.it</p>
-              <p className="mb-1">Tel: +39 011 234567</p>
-              <small className="d-block mt-3">© 2024 Munlab - Tutti i diritti riservati</small>
+              <h3 className="mb-4">Non perderti neanche una delle nostre proposte:</h3>
+              <Button className="newsletter-button">
+                ISCRIVITI ALLA NEWSLETTER!
+              </Button>
             </Col>
           </Row>
         </Container>
-      </footer>
+      </section>
+
+      {/* Partners Section */}
+      <section className="partners-section">
+        <Container>
+          <h3 className="text-center mb-4">Il Munlab è un progetto sostenuto da</h3>
+          <Row className="justify-content-center align-items-center g-4">
+            <Col xs={6} md={3} lg={2}>
+              <img 
+                src="/partner-logos/regione-piemonte.png" 
+                alt="Regione Piemonte" 
+                className="partner-logo img-fluid"
+              />
+            </Col>
+            {/* Aggiungi altri partner qui */}
+          </Row>
+          <div className="text-center mt-5">
+            <h3 className="mb-4">Il Munlab è parte delle reti</h3>
+            {/* Aggiungi le reti qui */}
+          </div>
+          <div className="text-center mt-5">
+            <h3 className="mb-4">Il Munlab collabora stabilmente con</h3>
+            {/* Aggiungi i collaboratori qui */}
+          </div>
+        </Container>
+      </section>
     </div>
   );
 };

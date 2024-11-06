@@ -21,7 +21,7 @@
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
-    background: white;
+    background:var(--background-color);
   }
   
   .account-type-card:hover {

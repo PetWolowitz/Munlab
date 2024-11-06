@@ -159,7 +159,7 @@ const AdminRegister = () => {
             <Row className="mb-3">
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Email Istituzionale</Form.Label>
+                  <Form.Label>Email</Form.Label>
                   <Form.Control
                     type="email"
                     name="email"
@@ -174,24 +174,7 @@ const AdminRegister = () => {
                   </Form.Control.Feedback>
                 </Form.Group>
               </Col>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label>ID Dipendente</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="employeeId"
-                    value={formData.employeeId}
-                    onChange={handleInputChange}
-                    isInvalid={!!errors.employeeId}
-                    required
-                    className="rounded-pill"
-                    placeholder="Es. EMP123"
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.employeeId}
-                  </Form.Control.Feedback>
-                </Form.Group>
-              </Col>
+              
             </Row>
 
             <Row className="mb-3">

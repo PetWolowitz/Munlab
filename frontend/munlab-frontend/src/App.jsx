@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import PublicHome from './pages/public/PublicHome';
 import AccountTypeSelection from './pages/auth/AccountTypeSelection';
@@ -9,6 +9,10 @@ import AdminRegister from './pages/auth/AdminRegister';
 import Dashboard from './pages/Dashboard';
 import Activities from './pages/Activities';
 import Bookings from './pages/Bookings';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import CalendarView from './pages/user/CalendarView';
+import UserBookings from './pages/user/UserBookings';
+import UserProfile from './pages/user/UserProfile';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/variables.css';
 import './styles/layout.css';
@@ -56,7 +60,33 @@ function App() {
             <Route path="/auth/user-register" element={<UserRegister />} />
             <Route path="/auth/admin-register" element={<AdminRegister />} />
             
-            {/* Rotte protette */}
+            {/* Rotte utente */}
+            <Route
+              path="/calendar"
+              element={
+                <PrivateRoute allowedUserType="user">
+                  <CalendarView />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/my-bookings"
+              element={
+                <PrivateRoute allowedUserType="user">
+                  <UserBookings />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <PrivateRoute allowedUserType="user">
+                  <UserProfile />
+                </PrivateRoute>
+              }
+            />
+
+            {/* Rotte admin */}
             <Route
               path="/dashboard"
               element={
@@ -76,8 +106,16 @@ function App() {
             <Route
               path="/bookings"
               element={
-                <PrivateRoute>
+                <PrivateRoute allowedUserType="admin">
                   <Bookings />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/*"
+              element={
+                <PrivateRoute allowedUserType="admin">
+                  <AdminDashboard />
                 </PrivateRoute>
               }
             />
