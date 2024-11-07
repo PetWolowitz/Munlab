@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Container, Card, Form, Button, Row, Col, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -276,15 +277,15 @@ const UserRegister = () => {
 
             <Form onSubmit={handleSubmit}>
               <AnimatePresence mode="wait">
-                {currentStep === 1 && (
-                  <motion.div
-                    key="step1"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {/* Step 1: Informazioni Personali */}
+                <motion.div
+                  key={currentStep}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {/* Step 1: Informazioni Personali */}
+                  {currentStep === 1 && (
                     <Row className="mb-3">
                       <Col md={6}>
                         <FieldWithTooltip
@@ -309,18 +310,10 @@ const UserRegister = () => {
                         />
                       </Col>
                     </Row>
-                  </motion.div>
-                )}
+                  )}
 
-                {currentStep === 2 && (
-                  <motion.div
-                    key="step2"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {/* Step 2: Email e Username */}
+                  {/* Step 2: Email e Username */}
+                  {currentStep === 2 && (
                     <Row className="mb-3">
                       <Col md={6}>
                         <FieldWithTooltip
@@ -345,18 +338,10 @@ const UserRegister = () => {
                         />
                       </Col>
                     </Row>
-                  </motion.div>
-                )}
+                  )}
 
-                {currentStep === 3 && (
-                  <motion.div
-                    key="step3"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {/* Step 3: Password */}
+                  {/* Step 3: Password */}
+                  {currentStep === 3 && (
                     <Row className="mb-3">
                       <Col md={6}>
                         <FieldWithTooltip
@@ -382,8 +367,8 @@ const UserRegister = () => {
                         />
                       </Col>
                     </Row>
-                  </motion.div>
-                )}
+                  )}
+                </motion.div>
               </AnimatePresence>
 
               {/* Pulsanti di navigazione */}
