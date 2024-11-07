@@ -49,7 +49,7 @@ const PublicHome = () => {
       </section>
 
       {/* Activities Section */}
-      <section className="activities-section">
+      <section className="activities-section ">
         <Container>
           <h2 className="text-center mb-5">Le Nostre Attività</h2>
           <Row className="g-4">
@@ -115,7 +115,7 @@ const PublicHome = () => {
       </section>
 
       {/* Newsletter Section */}
-      <section className="newsletter-section">
+      <section className="newsletter-section mt-5">
         <Container>
           <Row className="justify-content-center">
             <Col md={8} className="text-center">
