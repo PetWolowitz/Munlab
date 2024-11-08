@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Container, Card, Form, Button, Row, Col, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Container, Card, Form, Button, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaInfoCircle, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { validateField, validatePassword } from '../../utils/validationUtils';
 import authService from '../../services/authService';
 import ProgressSteps from '../../components/ProgressSteps';
@@ -30,7 +30,7 @@ const AdminRegister = () => {
   // Stati per mostrare/nascondere le password
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   const validationTimeout = useRef(null);
   const navigate = useNavigate();
 
@@ -43,22 +43,11 @@ const AdminRegister = () => {
     };
   }, []);
 
-  const fieldTooltips = {
-    firstName: "Inserisci il tuo nome",
-    lastName: "Inserisci il tuo cognome",
-    username: "Inserisci un username unico di almeno 4 caratteri",
-    email: "Inserisci un indirizzo email valido",
-    password: "La password deve contenere almeno 8 caratteri, una maiuscola, una minuscola e un numero",
-    confirmPassword: "Ripeti la password per conferma",
-    role: "Seleziona il tuo ruolo all'interno dell'organizzazione",
-    department: "Seleziona il dipartimento di appartenenza"
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Aggiorna immediatamente il valore del campo
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value
     }));
@@ -70,7 +59,7 @@ const AdminRegister = () => {
 
     validationTimeout.current = setTimeout(() => {
       const error = validateField(name, value);
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         [name]: error
       }));
@@ -94,13 +83,17 @@ const AdminRegister = () => {
     const strength = getPasswordStrength(password);
     const getColor = () => {
       switch (strength) {
-        case 0: return 'var(--error-color)';
+        case 0:
+          return 'var(--error-color)';
         case 1:
-        case 2: return '#ffc107';
+        case 2:
+          return '#ffc107';
         case 3:
         case 4:
-        case 5: return '#28a745';
-        default: return '#28a745';
+        case 5:
+          return '#28a745';
+        default:
+          return '#28a745';
       }
     };
 
@@ -130,7 +123,7 @@ const AdminRegister = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    Object.keys(formData).forEach(key => {
+    Object.keys(formData).forEach((key) => {
       if (key !== 'confirmPassword') {
         const error = validateField(key, formData[key]);
         if (error) newErrors[key] = error;
@@ -156,27 +149,25 @@ const AdminRegister = () => {
 
     setLoading(true);
     try {
-      const response = await authService.register({
+      await authService.register({
         ...formData,
         user_type: 'admin'
       });
 
       setSuccessMessage(
         'Registrazione effettuata con successo! La tua richiesta è in attesa di approvazione da parte del super admin. ' +
-        'Riceverai una notifica quando il tuo account sarà stato approvato.'
+          'Riceverai una notifica quando il tuo account sarà stato approvato.'
       );
 
       setTimeout(() => {
         navigate('/auth');
       }, 3000);
-
     } catch (err) {
       if (err.response?.data?.errors) {
         setErrors(err.response.data.errors);
       } else {
         setGeneralError(
-          err.response?.data?.message || 
-          'Errore durante la registrazione. Riprova più tardi.'
+          err.response?.data?.message || 'Errore durante la registrazione. Riprova più tardi.'
         );
       }
     } finally {
@@ -184,293 +175,262 @@ const AdminRegister = () => {
     }
   };
 
-  // Componente per il tooltip
-  const renderTooltip = (content) => (props) => (
-    <Tooltip {...props}>
-      {content}
-    </Tooltip>
-  );
-
-  // Componente per i campi del form con tooltip
-  const FieldWithTooltip = ({ label, name, type, value, onChange, error, tooltip }) => (
-    <Form.Group>
-      <Form.Label className="d-flex align-items-center">
-        {label}
-        <OverlayTrigger
-          placement="right"
-          overlay={renderTooltip(tooltip)}
-        >
-          <span className="ms-2">
-            <FaInfoCircle className="text-muted" />
-          </span>
-        </OverlayTrigger>
-      </Form.Label>
-      <Form.Control
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        isInvalid={!!error}
-        required
-        className="rounded-pill"
-      />
-      <Form.Control.Feedback type="invalid">
-        {error}
-      </Form.Control.Feedback>
-    </Form.Group>
-  );
-
   // Animazioni
   const pageTransition = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: 20 }
+    initial: { opacity: 0, x: 20 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -20 },
+    transition: { duration: 0.3 }
   };
 
   return (
     <Container fluid className="auth-container">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
-        <Card className="auth-card">
-          <Card.Body className="p-4">
-            <h3 className="text-center mb-4">Registrazione Amministratore</h3>
-            
-            <ProgressSteps currentStep={currentStep} totalSteps={3} />
+      <Card className="auth-card">
+        <Card.Body className="p-4">
+          <h3 className="text-center mb-4">Registrazione Amministratore</h3>
 
-            {generalError && (
-              <AnimatedAlert 
-                show={true}
-                variant="danger" 
-                onClose={() => setGeneralError('')}
-              >
-                {generalError}
-              </AnimatedAlert>
-            )}
+          <ProgressSteps currentStep={currentStep} totalSteps={3} />
 
-            {successMessage && (
-              <AnimatedAlert 
-                show={true}
-                variant="success" 
-                onClose={() => setSuccessMessage('')}
-              >
-                {successMessage}
-              </AnimatedAlert>
-            )}
+          {generalError && (
+            <AnimatedAlert show={true} variant="danger" onClose={() => setGeneralError('')}>
+              {generalError}
+            </AnimatedAlert>
+          )}
 
-            <Form onSubmit={handleSubmit} noValidate>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentStep}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {currentStep === 1 && (
-                    <Row className="mb-3">
-                      <Col md={6}>
-                        <FieldWithTooltip
-                          label="Nome"
-                          name="firstName"
+          {successMessage && (
+            <AnimatedAlert show={true} variant="success" onClose={() => setSuccessMessage('')}>
+              {successMessage}
+            </AnimatedAlert>
+          )}
+
+          <Form onSubmit={handleSubmit} noValidate>
+            <AnimatePresence mode="wait">
+              <motion.div key={currentStep} {...pageTransition}>
+                {currentStep === 1 && (
+                  <Row className="mb-3">
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label>Nome</Form.Label>
+                        <Form.Control
                           type="text"
+                          name="firstName"
                           value={formData.firstName}
                           onChange={handleInputChange}
-                          error={errors.firstName}
-                          tooltip={fieldTooltips.firstName}
+                          isInvalid={!!errors.firstName}
+                          required
+                          className="rounded-pill"
                         />
-                      </Col>
-                      <Col md={6}>
-                        <FieldWithTooltip
-                          label="Cognome"
-                          name="lastName"
+                        <Form.Control.Feedback type="invalid">
+                          {errors.firstName}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label>Cognome</Form.Label>
+                        <Form.Control
                           type="text"
+                          name="lastName"
                           value={formData.lastName}
                           onChange={handleInputChange}
-                          error={errors.lastName}
-                          tooltip={fieldTooltips.lastName}
+                          isInvalid={!!errors.lastName}
+                          required
+                          className="rounded-pill"
                         />
-                      </Col>
-                    </Row>
-                  )}
+                        <Form.Control.Feedback type="invalid">
+                          {errors.lastName}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                )}
 
-                  {currentStep === 2 && (
-                    <Row className="mb-3">
-                      <Col md={6}>
-                        <FieldWithTooltip
-                          label="Email"
-                          name="email"
+                {currentStep === 2 && (
+                  <Row className="mb-3">
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control
                           type="email"
+                          name="email"
                           value={formData.email}
                           onChange={handleInputChange}
-                          error={errors.email}
-                          tooltip={fieldTooltips.email}
+                          isInvalid={!!errors.email}
+                          required
+                          className="rounded-pill"
                         />
-                      </Col>
-                      <Col md={6}>
-                        <FieldWithTooltip
-                          label="Username"
-                          name="username"
+                        <Form.Control.Feedback type="invalid">
+                          {errors.email}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label>Username</Form.Label>
+                        <Form.Control
                           type="text"
+                          name="username"
                           value={formData.username}
                           onChange={handleInputChange}
-                          error={errors.username}
-                          tooltip={fieldTooltips.username}
+                          isInvalid={!!errors.username}
+                          required
+                          className="rounded-pill"
                         />
+                        <Form.Control.Feedback type="invalid">
+                          {errors.username}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                )}
+
+                {currentStep === 3 && (
+                  <>
+                    <Row className="mb-3">
+                      <Col md={6}>
+                        {/* Campo Password con mostra/nascondi */}
+                        <Form.Group>
+                          <Form.Label>Password</Form.Label>
+                          <div className="position-relative">
+                            <Form.Control
+                              type={showPassword ? 'text' : 'password'}
+                              name="password"
+                              value={formData.password}
+                              onChange={handleInputChange}
+                              isInvalid={!!errors.password}
+                              required
+                              className="rounded-pill"
+                            />
+                            <Button
+                              variant="link"
+                              className="position-absolute top-50 end-0 translate-middle-y"
+                              onClick={() => setShowPassword(!showPassword)}
+                              style={{ zIndex: 10 }}
+                            >
+                              {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            </Button>
+                            <Form.Control.Feedback type="invalid">
+                              {errors.password}
+                            </Form.Control.Feedback>
+                          </div>
+                          <PasswordStrengthIndicator password={formData.password} />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        {/* Campo Conferma Password con mostra/nascondi */}
+                        <Form.Group>
+                          <Form.Label>Conferma Password</Form.Label>
+                          <div className="position-relative">
+                            <Form.Control
+                              type={showConfirmPassword ? 'text' : 'password'}
+                              name="confirmPassword"
+                              value={formData.confirmPassword}
+                              onChange={handleInputChange}
+                              isInvalid={!!errors.confirmPassword}
+                              required
+                              className="rounded-pill"
+                            />
+                            <Button
+                              variant="link"
+                              className="position-absolute top-50 end-0 translate-middle-y"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              style={{ zIndex: 10 }}
+                            >
+                              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                            </Button>
+                            <Form.Control.Feedback type="invalid">
+                              {errors.confirmPassword}
+                            </Form.Control.Feedback>
+                          </div>
+                        </Form.Group>
                       </Col>
                     </Row>
-                  )}
-
-                  {currentStep === 3 && (
-                    <>
-                      <Row className="mb-3">
-                        <Col md={6}>
-                          {/* Campo Password con mostra/nascondi */}
-                          <Form.Group>
-                            <Form.Label>Password</Form.Label>
-                            <div className="position-relative">
-                              <Form.Control
-                                type={showPassword ? "text" : "password"}
-                                name="password"
-                                value={formData.password}
-                                onChange={handleInputChange}
-                                isInvalid={!!errors.password}
-                                required
-                                className="rounded-pill"
-                              />
-                              <Button
-                                variant="link"
-                                className="position-absolute top-50 end-0 translate-middle-y"
-                                onClick={() => setShowPassword(!showPassword)}
-                                style={{ zIndex: 10 }}
-                              >
-                                {showPassword ? <FaEyeSlash /> : <FaEye />}
-                              </Button>
-                              <Form.Control.Feedback type="invalid">
-                                {errors.password}
-                              </Form.Control.Feedback>
-                            </div>
-                            <PasswordStrengthIndicator password={formData.password} />
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          {/* Campo Conferma Password con mostra/nascondi */}
-                          <Form.Group>
-                            <Form.Label>Conferma Password</Form.Label>
-                            <div className="position-relative">
-                              <Form.Control
-                                type={showConfirmPassword ? "text" : "password"}
-                                name="confirmPassword"
-                                value={formData.confirmPassword}
-                                onChange={handleInputChange}
-                                isInvalid={!!errors.confirmPassword}
-                                required
-                                className="rounded-pill"
-                              />
-                              <Button
-                                variant="link"
-                                className="position-absolute top-50 end-0 translate-middle-y"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                style={{ zIndex: 10 }}
-                              >
-                                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-                              </Button>
-                              <Form.Control.Feedback type="invalid">
-                                {errors.confirmPassword}
-                              </Form.Control.Feedback>
-                            </div>
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                      <Row className="mb-3">
-                        <Col md={6}>
-                          <Form.Group>
-                            <Form.Label>Ruolo</Form.Label>
-                            <Form.Select
-                              name="role"
-                              value={formData.role}
-                              onChange={handleInputChange}
-                              isInvalid={!!errors.role}
-                              required
-                              className="rounded-pill"
-                            >
-                              <option value="">Seleziona ruolo</option>
-                              <option value="manager">Manager</option>
-                              <option value="operator">Operatore</option>
-                              <option value="guide">Guida Museale</option>
-                            </Form.Select>
-                            <Form.Control.Feedback type="invalid">
-                              {errors.role}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group>
-                            <Form.Label>Dipartimento</Form.Label>
-                            <Form.Select
-                              name="department"
-                              value={formData.department}
-                              onChange={handleInputChange}
-                              isInvalid={!!errors.department}
-                              required
-                              className="rounded-pill"
-                            >
-                              <option value="">Seleziona dipartimento</option>
-                              <option value="education">Educazione</option>
-                              <option value="operations">Operazioni</option>
-                              <option value="management">Management</option>
-                            </Form.Select>
-                            <Form.Control.Feedback type="invalid">
-                              {errors.department}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                    </>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-
-              {/* Pulsanti di navigazione */}
-              <div className="d-flex justify-content-between mt-4">
-                {currentStep > 1 && (
-                  <Button
-                    variant="outline-primary"
-                    onClick={() => setCurrentStep(curr => curr - 1)}
-                    className="rounded-pill"
-                  >
-                    Indietro
-                  </Button>
+                    <Row className="mb-3">
+                      <Col md={6}>
+                        <Form.Group>
+                          <Form.Label>Ruolo</Form.Label>
+                          <Form.Select
+                            name="role"
+                            value={formData.role}
+                            onChange={handleInputChange}
+                            isInvalid={!!errors.role}
+                            required
+                            className="rounded-pill"
+                          >
+                            <option value="">Seleziona ruolo</option>
+                            <option value="manager">Manager</option>
+                            <option value="operator">Operatore</option>
+                            <option value="guide">Guida Museale</option>
+                          </Form.Select>
+                          <Form.Control.Feedback type="invalid">
+                            {errors.role}
+                          </Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group>
+                          <Form.Label>Dipartimento</Form.Label>
+                          <Form.Select
+                            name="department"
+                            value={formData.department}
+                            onChange={handleInputChange}
+                            isInvalid={!!errors.department}
+                            required
+                            className="rounded-pill"
+                          >
+                            <option value="">Seleziona dipartimento</option>
+                            <option value="education">Educazione</option>
+                            <option value="operations">Operazioni</option>
+                            <option value="management">Management</option>
+                          </Form.Select>
+                          <Form.Control.Feedback type="invalid">
+                            {errors.department}
+                          </Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                  </>
                 )}
-                
-                {currentStep < 3 ? (
-                  <Button
-                    variant="primary"
-                    onClick={() => setCurrentStep(curr => curr + 1)}
-                    className="rounded-pill ms-auto"
-                  >
-                    Avanti
-                  </Button>
-                ) : (
-                  <Button
-                    type="submit"
-                    className="rounded-pill ms-auto"
-                    disabled={loading}
-                    style={{
-                      backgroundColor: 'var(--primary-color)',
-                      border: 'none'
-                    }}
-                  >
-                    {loading ? 'Registrazione in corso...' : 'Completa Registrazione'}
-                  </Button>
-                )}
-              </div>
-            </Form>
-          </Card.Body>
-        </Card>
-      </motion.div>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Pulsanti di navigazione */}
+            <div className="d-flex justify-content-between mt-4">
+              {currentStep > 1 && (
+                <Button
+                  variant="outline-primary"
+                  onClick={() => setCurrentStep((curr) => curr - 1)}
+                  className="rounded-pill"
+                >
+                  Indietro
+                </Button>
+              )}
+
+              {currentStep < 3 ? (
+                <Button
+                  variant="primary"
+                  onClick={() => setCurrentStep((curr) => curr + 1)}
+                  className="rounded-pill ms-auto"
+                >
+                  Avanti
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  className="rounded-pill ms-auto"
+                  disabled={loading}
+                  style={{
+                    backgroundColor: 'var(--primary-color)',
+                    border: 'none'
+                  }}
+                >
+                  {loading ? 'Registrazione in corso...' : 'Completa Registrazione'}
+                </Button>
+              )}
+            </div>
+          </Form>
+        </Card.Body>
+      </Card>
     </Container>
   );
 };
