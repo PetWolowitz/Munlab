@@ -12,8 +12,8 @@
     --warning-color: #ffc107;
     
     /* Ombre */
-    --box-shadow: 0 4px 6px #b16756;
-    --card-shadow: 0 2px 4px #b16756;
+    --box-shadow: 2px 4px 6px #b16756;
+    --card-shadow: 2px 4px 6px #b16756;
     
     /* Border radius */
     --border-radius-sm: 0.5rem;

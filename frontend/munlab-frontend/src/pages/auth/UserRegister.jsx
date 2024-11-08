@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Container, Card, Form, Button, Row, Col, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -26,9 +25,18 @@ const UserRegister = () => {
   const [generalError, setGeneralError] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
   
+  const validationTimeout = useRef(null);
   const navigate = useNavigate();
 
-  // Tooltips per i campi
+  // Pulizia timeout al dismount
+  useEffect(() => {
+    return () => {
+      if (validationTimeout.current) {
+        clearTimeout(validationTimeout.current);
+      }
+    };
+  }, []);
+
   const fieldTooltips = {
     firstName: "Inserisci il tuo nome",
     lastName: "Inserisci il tuo cognome",
@@ -38,66 +46,42 @@ const UserRegister = () => {
     confirmPassword: "Ripeti la password per conferma"
   };
 
-  // Funzione per calcolare la forza della password
-  const getPasswordStrength = (password) => {
-    if (!password) return 0;
-    let strength = 0;
-    if (password.length >= 8) strength += 1;
-    if (/[A-Z]/.test(password)) strength += 1;
-    if (/[a-z]/.test(password)) strength += 1;
-    if (/[0-9]/.test(password)) strength += 1;
-    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-    return strength;
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // Aggiorna immediatamente il valore del campo
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
 
-    const error = validateField(name, value);
-    setErrors(prev => ({
-      ...prev,
-      [name]: error
-    }));
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    Object.keys(formData).forEach(key => {
-      if (key !== 'confirmPassword') {
-        const error = validateField(key, formData[key]);
-        if (error) newErrors[key] = error;
-      }
-    });
-
-    const passwordError = validatePassword(formData.password, formData.confirmPassword);
-    if (passwordError) newErrors.confirmPassword = passwordError;
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // Gestione login social
-  const handleGoogleLogin = async () => {
-    try {
-      // Implementare quando avremo le API key
-      const response = await authService.handleGoogleLogin();
-      navigate('/calendar'); // Reindirizza alla pagina delle attività
-    } catch (error) {
-      setGeneralError('Errore durante l\'accesso con Google');
+    // Ritarda la validazione per migliorare le performance
+    if (validationTimeout.current) {
+      clearTimeout(validationTimeout.current);
     }
+
+    validationTimeout.current = setTimeout(() => {
+      const error = validateField(name, value);
+      setErrors(prev => ({
+        ...prev,
+        [name]: error
+      }));
+    }, 500);
   };
 
-  const handleFacebookLogin = async () => {
+  const handleSocialLogin = async (provider) => {
     try {
-      // Implementare quando avremo le API key
-      const response = await authService.handleFacebookLogin();
-      navigate('/calendar'); // Reindirizza alla pagina delle attività
+      setLoading(true);
+      if (provider === 'google') {
+        await authService.handleGoogleLogin();
+      } else {
+        await authService.handleFacebookLogin();
+      }
+      navigate('/calendar');
     } catch (error) {
-      setGeneralError('Errore durante l\'accesso con Facebook');
+      setGeneralError(`Errore durante l'accesso con ${provider}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -107,7 +91,6 @@ const UserRegister = () => {
     setSuccessMessage('');
 
     if (!validateForm()) {
-      setGeneralError('Per favore, correggi gli errori nel form prima di procedere.');
       return;
     }
 
@@ -119,8 +102,8 @@ const UserRegister = () => {
       });
 
       setSuccessMessage('Registrazione completata con successo!');
-
-      // Reindirizza alla pagina delle attività dopo 2 secondi
+      
+      // Reindirizza dopo 2 secondi
       setTimeout(() => {
         navigate('/calendar');
       }, 2000);
@@ -139,90 +122,35 @@ const UserRegister = () => {
     }
   };
 
-  // Componenti UI riutilizzabili
-  const renderTooltip = (content) => (props) => (
-    <Tooltip {...props}>
-      {content}
-    </Tooltip>
-  );
-
-  const FieldWithTooltip = ({ label, name, type, value, onChange, error, tooltip }) => (
-    <Form.Group>
-      <Form.Label className="d-flex align-items-center">
-        {label}
-        <OverlayTrigger
-          placement="right"
-          overlay={renderTooltip(tooltip)}
-        >
-          <span className="ms-2">
-            <FaInfoCircle className="text-muted" />
-          </span>
-        </OverlayTrigger>
-      </Form.Label>
-      <Form.Control
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        isInvalid={!!error}
-        required
-        className="rounded-pill"
-      />
-      <Form.Control.Feedback type="invalid">
-        {error}
-      </Form.Control.Feedback>
-    </Form.Group>
-  );
-
-  const PasswordStrengthIndicator = ({ password }) => {
-    const strength = getPasswordStrength(password);
-    const getColor = () => {
-      switch (strength) {
-        case 0: return 'var(--error-color)';
-        case 1: case 2: return '#ffc107';
-        case 3: case 4: return '#28a745';
-        default: return '#28a745';
+  // Form validation
+  const validateForm = () => {
+    const newErrors = {};
+    Object.keys(formData).forEach(key => {
+      if (key !== 'confirmPassword') {
+        const error = validateField(key, formData[key]);
+        if (error) newErrors[key] = error;
       }
-    };
+    });
 
-    return (
-      <div className="password-strength mt-2">
-        <small className="text-muted">Forza password:</small>
-        <div className="d-flex gap-1 mt-1">
-          {[1, 2, 3, 4, 5].map((level) => (
-            <motion.div
-              key={level}
-              className="strength-bar"
-              style={{
-                height: '4px',
-                width: '20%',
-                backgroundColor: '#e9ecef',
-                borderRadius: '2px'
-              }}
-              animate={{
-                backgroundColor: level <= strength ? getColor() : '#e9ecef'
-              }}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  };
+    const passwordError = validatePassword(formData.password, formData.confirmPassword);
+    if (passwordError) newErrors.confirmPassword = passwordError;
 
-  // Animazioni
-  const pageTransition = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: 20 }
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      setGeneralError('Per favore, correggi gli errori nel form prima di procedere.');
+      return false;
+    }
+
+    return true;
   };
 
   return (
     <Container fluid className="auth-container">
       <motion.div
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        variants={pageTransition}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
       >
         <Card className="auth-card">
           <Card.Body className="p-4">
@@ -230,38 +158,24 @@ const UserRegister = () => {
             
             <ProgressSteps currentStep={currentStep} totalSteps={3} />
 
-            <AnimatedAlert 
-              show={!!generalError} 
-              variant="danger" 
-              onClose={() => setGeneralError('')}
-            >
-              {generalError}
-            </AnimatedAlert>
-
-            <AnimatedAlert 
-              show={!!successMessage} 
-              variant="success" 
-              onClose={() => setSuccessMessage('')}
-            >
-              {successMessage}
-            </AnimatedAlert>
-
-            {/* Social Login Buttons */}
+            {/* Social Login Section */}
             <div className="text-center mb-4">
               <p className="text-muted">Registrati con</p>
               <div className="d-flex justify-content-center gap-3">
                 <Button 
                   variant="outline-danger" 
-                  className="rounded-pill" 
-                  onClick={handleGoogleLogin}
+                  className="rounded-pill social-button"
+                  onClick={() => handleSocialLogin('google')}
+                  disabled={loading}
                 >
                   <FaGoogle className="me-2" />
                   Google
                 </Button>
                 <Button 
                   variant="outline-primary" 
-                  className="rounded-pill"
-                  onClick={handleFacebookLogin}
+                  className="rounded-pill social-button"
+                  onClick={() => handleSocialLogin('facebook')}
+                  disabled={loading}
                 >
                   <FaFacebook className="me-2" />
                   Facebook
@@ -275,7 +189,27 @@ const UserRegister = () => {
               </div>
             </div>
 
-            <Form onSubmit={handleSubmit}>
+            {generalError && (
+              <AnimatedAlert 
+                show={true}
+                variant="danger" 
+                onClose={() => setGeneralError('')}
+              >
+                {generalError}
+              </AnimatedAlert>
+            )}
+
+            {successMessage && (
+              <AnimatedAlert 
+                show={true}
+                variant="success" 
+                onClose={() => setSuccessMessage('')}
+              >
+                {successMessage}
+              </AnimatedAlert>
+            )}
+
+            <Form onSubmit={handleSubmit} noValidate>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentStep}
@@ -284,100 +218,132 @@ const UserRegister = () => {
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
                 >
-                  {/* Step 1: Informazioni Personali */}
                   {currentStep === 1 && (
                     <Row className="mb-3">
                       <Col md={6}>
-                        <FieldWithTooltip
-                          label="Nome"
-                          name="firstName"
-                          type="text"
-                          value={formData.firstName}
-                          onChange={handleInputChange}
-                          error={errors.firstName}
-                          tooltip={fieldTooltips.firstName}
-                        />
+                        <Form.Group>
+                          <Form.Label>Nome</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="firstName"
+                            value={formData.firstName}
+                            onChange={handleInputChange}
+                            isInvalid={!!errors.firstName}
+                            required
+                            className="rounded-pill"
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.firstName}
+                          </Form.Control.Feedback>
+                        </Form.Group>
                       </Col>
                       <Col md={6}>
-                        <FieldWithTooltip
-                          label="Cognome"
-                          name="lastName"
-                          type="text"
-                          value={formData.lastName}
-                          onChange={handleInputChange}
-                          error={errors.lastName}
-                          tooltip={fieldTooltips.lastName}
-                        />
+                        <Form.Group>
+                          <Form.Label>Cognome</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="lastName"
+                            value={formData.lastName}
+                            onChange={handleInputChange}
+                            isInvalid={!!errors.lastName}
+                            required
+                            className="rounded-pill"
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.lastName}
+                          </Form.Control.Feedback>
+                        </Form.Group>
                       </Col>
                     </Row>
                   )}
 
-                  {/* Step 2: Email e Username */}
                   {currentStep === 2 && (
                     <Row className="mb-3">
                       <Col md={6}>
-                        <FieldWithTooltip
-                          label="Email"
-                          name="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          error={errors.email}
-                          tooltip={fieldTooltips.email}
-                        />
+                        <Form.Group>
+                          <Form.Label>Email</Form.Label>
+                          <Form.Control
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            isInvalid={!!errors.email}
+                            required
+                            className="rounded-pill"
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.email}
+                          </Form.Control.Feedback>
+                        </Form.Group>
                       </Col>
                       <Col md={6}>
-                        <FieldWithTooltip
-                          label="Username"
-                          name="username"
-                          type="text"
-                          value={formData.username}
-                          onChange={handleInputChange}
-                          error={errors.username}
-                          tooltip={fieldTooltips.username}
-                        />
+                        <Form.Group>
+                          <Form.Label>Username</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="username"
+                            value={formData.username}
+                            onChange={handleInputChange}
+                            isInvalid={!!errors.username}
+                            required
+                            className="rounded-pill"
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.username}
+                          </Form.Control.Feedback>
+                        </Form.Group>
                       </Col>
                     </Row>
                   )}
 
-                  {/* Step 3: Password */}
                   {currentStep === 3 && (
                     <Row className="mb-3">
                       <Col md={6}>
-                        <FieldWithTooltip
-                          label="Password"
-                          name="password"
-                          type="password"
-                          value={formData.password}
-                          onChange={handleInputChange}
-                          error={errors.password}
-                          tooltip={fieldTooltips.password}
-                        />
-                        <PasswordStrengthIndicator password={formData.password} />
+                        <Form.Group>
+                          <Form.Label>Password</Form.Label>
+                          <Form.Control
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleInputChange}
+                            isInvalid={!!errors.password}
+                            required
+                            className="rounded-pill"
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.password}
+                          </Form.Control.Feedback>
+                        </Form.Group>
                       </Col>
                       <Col md={6}>
-                        <FieldWithTooltip
-                          label="Conferma Password"
-                          name="confirmPassword"
-                          type="password"
-                          value={formData.confirmPassword}
-                          onChange={handleInputChange}
-                          error={errors.confirmPassword}
-                          tooltip={fieldTooltips.confirmPassword}
-                        />
+                        <Form.Group>
+                          <Form.Label>Conferma Password</Form.Label>
+                          <Form.Control
+                            type="password"
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={handleInputChange}
+                            isInvalid={!!errors.confirmPassword}
+                            required
+                            className="rounded-pill"
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.confirmPassword}
+                          </Form.Control.Feedback>
+                        </Form.Group>
                       </Col>
                     </Row>
                   )}
                 </motion.div>
               </AnimatePresence>
 
-              {/* Pulsanti di navigazione */}
               <div className="d-flex justify-content-between mt-4">
                 {currentStep > 1 && (
                   <Button
                     variant="outline-primary"
                     onClick={() => setCurrentStep(curr => curr - 1)}
                     className="rounded-pill"
+                    disabled={loading}
                   >
                     Indietro
                   </Button>
@@ -388,6 +354,7 @@ const UserRegister = () => {
                     variant="primary"
                     onClick={() => setCurrentStep(curr => curr + 1)}
                     className="rounded-pill ms-auto"
+                    disabled={loading}
                   >
                     Avanti
                   </Button>
