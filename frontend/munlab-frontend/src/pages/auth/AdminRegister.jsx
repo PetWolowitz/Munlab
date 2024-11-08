@@ -160,7 +160,7 @@ const AdminRegister = () => {
       );
 
       setTimeout(() => {
-        navigate('/auth');
+        navigate('/dashboard/admin');
       }, 3000);
     } catch (err) {
       if (err.response?.data?.errors) {

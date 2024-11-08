@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .serializers import UserSerializer
+from .serializers import UserSerializer, TokenUserSerializer
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
 from django.utils import timezone
@@ -132,4 +132,19 @@ class CheckApprovalStatus(APIView):
         return Response({
             'is_approved': request.user.is_approved,
             'user_type': request.user.user_type
+        })
+    
+# Nuova view per validare il token JWT
+class ValidateTokenView(APIView):
+    """
+    Vista per validare il token JWT e restituire informazioni sull'utente
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        serializer = TokenUserSerializer(user)
+        return Response({
+            'valid': True,
+            'user': serializer.data
         })

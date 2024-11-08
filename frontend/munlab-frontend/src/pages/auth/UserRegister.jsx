@@ -160,7 +160,7 @@ const UserRegister = () => {
       
       // Reindirizza dopo 2 secondi
       setTimeout(() => {
-        navigate('/calendar');
+        navigate('/dashboard/user');
       }, 2000);
 
     } catch (err) {

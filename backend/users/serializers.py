@@ -1,4 +1,3 @@
-# users/serializers.py
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from .models import CustomUser
@@ -116,9 +115,6 @@ class AdminApprovalSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 class UserUpdateSerializer(serializers.ModelSerializer):
-    """
-    Serializer per l'aggiornamento dei dati utente
-    """
     class Meta:
         model = CustomUser
         fields = (
@@ -132,3 +128,12 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         if CustomUser.objects.exclude(pk=user.pk).filter(email=value).exists():
             raise serializers.ValidationError("Questa email è già registrata")
         return value
+
+class TokenUserSerializer(serializers.ModelSerializer):
+    """
+    Serializer specifico per la validazione del token
+    """
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'user_type', 'is_active', 'is_approved')
+        read_only_fields = fields
