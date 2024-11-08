@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Container, Card, Form, Button, Row, Col, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaInfoCircle } from 'react-icons/fa';
+import { FaInfoCircle, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { validateField, validatePassword } from '../../utils/validationUtils';
 import authService from '../../services/authService';
 import ProgressSteps from '../../components/ProgressSteps';
@@ -26,6 +26,8 @@ const AdminRegister = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [generalError, setGeneralError] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
+
+  // Stati per mostrare/nascondere le password
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
@@ -75,6 +77,7 @@ const AdminRegister = () => {
     }, 500);
   };
 
+  // Funzione per calcolare la forza della password
   const getPasswordStrength = (password) => {
     if (!password) return 0;
     let strength = 0;
@@ -84,6 +87,45 @@ const AdminRegister = () => {
     if (/[0-9]/.test(password)) strength += 1;
     if (/[^A-Za-z0-9]/.test(password)) strength += 1;
     return strength;
+  };
+
+  // Componente per l'indicatore di forza della password
+  const PasswordStrengthIndicator = ({ password }) => {
+    const strength = getPasswordStrength(password);
+    const getColor = () => {
+      switch (strength) {
+        case 0: return 'var(--error-color)';
+        case 1:
+        case 2: return '#ffc107';
+        case 3:
+        case 4:
+        case 5: return '#28a745';
+        default: return '#28a745';
+      }
+    };
+
+    return (
+      <div className="password-strength mt-2">
+        <small className="text-muted">Forza password:</small>
+        <div className="d-flex gap-1 mt-1">
+          {[1, 2, 3, 4, 5].map((level) => (
+            <motion.div
+              key={level}
+              className="strength-bar"
+              style={{
+                height: '4px',
+                width: '20%',
+                backgroundColor: '#e9ecef',
+                borderRadius: '2px'
+              }}
+              animate={{
+                backgroundColor: level <= strength ? getColor() : '#e9ecef'
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    );
   };
 
   const validateForm = () => {
@@ -142,85 +184,48 @@ const AdminRegister = () => {
     }
   };
 
-
-// Componente per il tooltip
-const renderTooltip = (content) => (props) => (
-  <Tooltip {...props}>
-    {content}
-  </Tooltip>
-);
-
- // Componente per i campi del form con tooltip
-const FieldWithTooltip = ({ label, name, type, value, onChange, error, tooltip }) => (
-  <Form.Group>
-    <Form.Label className="d-flex align-items-center">
-      {label}
-      <OverlayTrigger
-        placement="right"
-        overlay={renderTooltip(tooltip)}
-      >
-        <span className="ms-2">
-          <FaInfoCircle className="text-muted" />
-        </span>
-      </OverlayTrigger>
-    </Form.Label>
-    <Form.Control
-      type={type}
-      name={name}
-      value={value}
-      onChange={onChange}
-      isInvalid={!!error}
-      required
-      className="rounded-pill"
-    />
-    <Form.Control.Feedback type="invalid">
-      {error}
-    </Form.Control.Feedback>
-  </Form.Group>
-);
-
-// Componente per l'indicatore di forza della password
-const PasswordStrengthIndicator = ({ password }) => {
-  const strength = getPasswordStrength(password);
-  const getColor = () => {
-    switch (strength) {
-      case 0: return 'var(--error-color)';
-      case 1: case 2: return '#ffc107';
-      case 3: case 4: return '#28a745';
-      default: return '#28a745';
-    }
-  };
-
-  return (
-    <div className="password-strength mt-2">
-      <small className="text-muted">Forza password:</small>
-      <div className="d-flex gap-1 mt-1">
-        {[1, 2, 3, 4, 5].map((level) => (
-          <motion.div
-            key={level}
-            className="strength-bar"
-            style={{
-              height: '4px',
-              width: '20%',
-              backgroundColor: '#e9ecef',
-              borderRadius: '2px'
-            }}
-            animate={{
-              backgroundColor: level <= strength ? getColor() : '#e9ecef'
-            }}
-          />
-        ))}
-      </div>
-    </div>
+  // Componente per il tooltip
+  const renderTooltip = (content) => (props) => (
+    <Tooltip {...props}>
+      {content}
+    </Tooltip>
   );
-};
 
-// Animazioni
-const pageTransition = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: 20 }
-};
+  // Componente per i campi del form con tooltip
+  const FieldWithTooltip = ({ label, name, type, value, onChange, error, tooltip }) => (
+    <Form.Group>
+      <Form.Label className="d-flex align-items-center">
+        {label}
+        <OverlayTrigger
+          placement="right"
+          overlay={renderTooltip(tooltip)}
+        >
+          <span className="ms-2">
+            <FaInfoCircle className="text-muted" />
+          </span>
+        </OverlayTrigger>
+      </Form.Label>
+      <Form.Control
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        isInvalid={!!error}
+        required
+        className="rounded-pill"
+      />
+      <Form.Control.Feedback type="invalid">
+        {error}
+      </Form.Control.Feedback>
+    </Form.Group>
+  );
+
+  // Animazioni
+  const pageTransition = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: 20 }
+  };
 
   return (
     <Container fluid className="auth-container">
@@ -256,16 +261,15 @@ const pageTransition = {
             )}
 
             <Form onSubmit={handleSubmit} noValidate>
-            <AnimatePresence mode="wait">
-                {currentStep === 1 && (
-                  <motion.div
-                    key="step1"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {/* Step 1: Informazioni Personali */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentStep}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {currentStep === 1 && (
                     <Row className="mb-3">
                       <Col md={6}>
                         <FieldWithTooltip
@@ -287,22 +291,12 @@ const pageTransition = {
                           onChange={handleInputChange}
                           error={errors.lastName}
                           tooltip={fieldTooltips.lastName}
-                          
                         />
                       </Col>
                     </Row>
-                  </motion.div>
-                )}
+                  )}
 
-                {currentStep === 2 && (
-                  <motion.div
-                    key="step2"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {/* Step 2: Informazioni Account */}
+                  {currentStep === 2 && (
                     <Row className="mb-3">
                       <Col md={6}>
                         <FieldWithTooltip
@@ -327,99 +321,116 @@ const pageTransition = {
                         />
                       </Col>
                     </Row>
-                  </motion.div>
-                )}
+                  )}
 
-{currentStep === 3 && (
-  <motion.div
-  key="step3"
-  initial={{ opacity: 0, x: 20 }}
-  animate={{ opacity: 1, x: 0 }}
-  exit={{ opacity: 0, x: -20 }}
-  transition={{ duration: 0.3 }}
-  >
-  <Row className="mb-3">
-    <Col md={6}>
-      <Form.Group>
-        <Form.Label>Password</Form.Label>
-        <div className="position-relative">
-          <Form.Control
-            type={showPassword ? "text" : "password"}
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            isInvalid={!!errors.password}
-            required
-            className="rounded-pill"
-          />
-          <Button
-            variant="link"
-            className="position-absolute top-50 end-0 translate-middle-y"
-            onClick={() => setShowPassword(!showPassword)}
-            style={{ zIndex: 10 }}
-          >
-            <FaInfoCircle />
-          </Button>
-          <Form.Control.Feedback type="invalid">
-            {errors.password}
-          </Form.Control.Feedback>
-        </div>
-        <PasswordStrengthIndicator password={formData.password} />
-      </Form.Group>
-    </Col>
-    <Col md={6}>
-      <Form.Group>
-        <Form.Label>Conferma Password</Form.Label>
-        <div className="position-relative">
-          <Form.Control
-            type={showConfirmPassword ? "text" : "password"}
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleInputChange}
-            isInvalid={!!errors.confirmPassword}
-            required
-            className="rounded-pill"
-          />
-          <Button
-            variant="link"
-            className="position-absolute top-50 end-0 translate-middle-y"
-            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            style={{ zIndex: 10 }}
-          >
-            <FaInfoCircle />
-          </Button>
-          <Form.Control.Feedback type="invalid">
-            {errors.confirmPassword}
-          </Form.Control.Feedback>
-        </div>
-      </Form.Group>
-    </Col>
-  </Row>
-)};
-                      <Col md={6}>
-                        <Form.Group>
-                          <Form.Label>Dipartimento</Form.Label>
-                          <Form.Select
-                            name="department"
-                            value={formData.department}
-                            onChange={handleInputChange}
-                            isInvalid={!!errors.department}
-                            required
-                            className="rounded-pill"
-                          >
-                            <option value="">Seleziona dipartimento</option>
-                            <option value="education">Educazione</option>
-                            <option value="operations">Operazioni</option>
-                            <option value="management">Management</option>
-                          </Form.Select>
-                          <Form.Control.Feedback type="invalid">
-                            {errors.department}
-                          </Form.Control.Feedback>
-                        </Form.Group>
-                      </Col>
-                    </Row>
-                  </motion.div>
-                )}
+                  {currentStep === 3 && (
+                    <>
+                      <Row className="mb-3">
+                        <Col md={6}>
+                          {/* Campo Password con mostra/nascondi */}
+                          <Form.Group>
+                            <Form.Label>Password</Form.Label>
+                            <div className="position-relative">
+                              <Form.Control
+                                type={showPassword ? "text" : "password"}
+                                name="password"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                isInvalid={!!errors.password}
+                                required
+                                className="rounded-pill"
+                              />
+                              <Button
+                                variant="link"
+                                className="position-absolute top-50 end-0 translate-middle-y"
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={{ zIndex: 10 }}
+                              >
+                                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                              </Button>
+                              <Form.Control.Feedback type="invalid">
+                                {errors.password}
+                              </Form.Control.Feedback>
+                            </div>
+                            <PasswordStrengthIndicator password={formData.password} />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          {/* Campo Conferma Password con mostra/nascondi */}
+                          <Form.Group>
+                            <Form.Label>Conferma Password</Form.Label>
+                            <div className="position-relative">
+                              <Form.Control
+                                type={showConfirmPassword ? "text" : "password"}
+                                name="confirmPassword"
+                                value={formData.confirmPassword}
+                                onChange={handleInputChange}
+                                isInvalid={!!errors.confirmPassword}
+                                required
+                                className="rounded-pill"
+                              />
+                              <Button
+                                variant="link"
+                                className="position-absolute top-50 end-0 translate-middle-y"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                style={{ zIndex: 10 }}
+                              >
+                                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                              </Button>
+                              <Form.Control.Feedback type="invalid">
+                                {errors.confirmPassword}
+                              </Form.Control.Feedback>
+                            </div>
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                      <Row className="mb-3">
+                        <Col md={6}>
+                          <Form.Group>
+                            <Form.Label>Ruolo</Form.Label>
+                            <Form.Select
+                              name="role"
+                              value={formData.role}
+                              onChange={handleInputChange}
+                              isInvalid={!!errors.role}
+                              required
+                              className="rounded-pill"
+                            >
+                              <option value="">Seleziona ruolo</option>
+                              <option value="manager">Manager</option>
+                              <option value="operator">Operatore</option>
+                              <option value="guide">Guida Museale</option>
+                            </Form.Select>
+                            <Form.Control.Feedback type="invalid">
+                              {errors.role}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group>
+                            <Form.Label>Dipartimento</Form.Label>
+                            <Form.Select
+                              name="department"
+                              value={formData.department}
+                              onChange={handleInputChange}
+                              isInvalid={!!errors.department}
+                              required
+                              className="rounded-pill"
+                            >
+                              <option value="">Seleziona dipartimento</option>
+                              <option value="education">Educazione</option>
+                              <option value="operations">Operazioni</option>
+                              <option value="management">Management</option>
+                            </Form.Select>
+                            <Form.Control.Feedback type="invalid">
+                              {errors.department}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                    </>
+                  )}
+                </motion.div>
               </AnimatePresence>
 
               {/* Pulsanti di navigazione */}
@@ -465,4 +476,3 @@ const pageTransition = {
 };
 
 export default AdminRegister;
-
