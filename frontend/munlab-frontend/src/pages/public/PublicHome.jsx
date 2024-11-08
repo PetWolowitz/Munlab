@@ -3,6 +3,8 @@ import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { FaTools, FaGraduationCap, FaClock } from 'react-icons/fa';
 import axios from 'axios';
+import { motion } from 'framer-motion'; // Importa framer-motion
+import '../../styles/layout.css';
 
 const PublicHome = () => {
   const [activities, setActivities] = useState([]);
@@ -25,9 +27,14 @@ const PublicHome = () => {
     <div className="page-container">
       {/* Hero Section */}
       <section className="hero-section">
-        <div className="hero-content">
+        <motion.div
+          className="hero-content"
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+        >
           <Container>
-            <Row className="justify-content-center text-center">
+            <Row className="justify-content-center mb-5 ">
               <Col md={8}>
                 <h1 className="display-4 fw-bold mb-4">Munlab</h1>
                 <h2 className="h3 mb-4">Museo dell'Argilla</h2>
@@ -45,13 +52,13 @@ const PublicHome = () => {
               </Col>
             </Row>
           </Container>
-        </div>
+        </motion.div>
       </section>
 
       {/* Activities Section */}
-      <section className="activities-section">
+      <section className="activities-section mt-3 shadow">
         <Container>
-          <h2 className="text-center mb-5">Le Nostre Attività</h2>
+          <h2 className="text-center mb-5 text-Cus">Le Nostre Attività:</h2>
           <Row className="g-4">
             {activities.map((activity) => (
               <Col md={4} key={activity.id}>
@@ -85,41 +92,48 @@ const PublicHome = () => {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="section-container bg-light">
+      <section className="section-container mt-1">
         <Container>
-          <h2 className="text-center mb-5">Perché Scegliere Munlab</h2>
-          <Row className="g-4">
-            <Col md={4}>
-              <div className="feature-card p-4 text-center">
-                <FaTools className="display-4 mb-3 text-primary" />
-                <h3 className="h5">Strumenti Professionali</h3>
-                <p>Attrezzature di alta qualità per la lavorazione dell'argilla</p>
-              </div>
-            </Col>
-            <Col md={4}>
-              <div className="feature-card p-4 text-center">
-                <FaGraduationCap className="display-4 mb-3 text-primary" />
-                <h3 className="h5">Esperti del Settore</h3>
-                <p>Maestri ceramisti con anni di esperienza</p>
-              </div>
-            </Col>
-            <Col md={4}>
-              <div className="feature-card p-4 text-center">
-                <FaClock className="display-4 mb-3 text-primary" />
-                <h3 className="h5">Flessibilità</h3>
-                <p>Orari personalizzabili e corsi su misura</p>
-              </div>
-            </Col>
+          <motion.h2 
+            className="text-center mt-5 text-Cus"
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            viewport={{ once: true }}
+            
+          >
+            Perché Scegliere Munlab?
+          </motion.h2>
+          <Row className="g-4 mt-3">
+            {[
+              { icon: <FaTools />, title: "Strumenti Professionali", text: "Attrezzature di alta qualità per la lavorazione dell'argilla" },
+              { icon: <FaGraduationCap />, title: "Esperti del Settore", text: "Maestri ceramisti con anni di esperienza" },
+              { icon: <FaClock />, title: "Flessibilità", text: "Orari personalizzabili e corsi su misura" },
+            ].map((feature, index) => (
+              <Col md={4} key={index}>
+                <motion.div 
+                  className="feature-card p-4 text-center"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: index * 0.2 }}
+                  viewport={{ once: true }}
+                >
+                  {feature.icon}
+                  <h3 className="h5 mt-3">{feature.title}</h3>
+                  <p>{feature.text}</p>
+                </motion.div>
+              </Col>
+            ))}
           </Row>
         </Container>
       </section>
 
       {/* Newsletter Section */}
-      <section className="newsletter-section mt-5">
+      <section className="newsletter-section mt-5 glass-effect">
         <Container>
           <Row className="justify-content-center">
             <Col md={8} className="text-center">
-              <h3 className="mb-4">Non perderti neanche una delle nostre proposte:</h3>
+              <h4 className="mb-4">Non perderti neanche una delle nostre proposte:</h4>
               <Button className="newsletter-button">
                 ISCRIVITI ALLA NEWSLETTER!
               </Button>
@@ -129,11 +143,10 @@ const PublicHome = () => {
       </section>
 
       {/* Footer Section */}
-      <footer className="bg-dark text-white py-5 mt-5">
+      <footer className="footer py-5 mt-5 shadow">
         <Container>
           <Row className="mb-4">
             <Col md={4} className="mb-3">
-              <h4>Collaborazioni e Partner</h4>
               <p>Il Munlab è un progetto sostenuto da:</p>
               <Row>
                 <Col xs={6}>
@@ -174,7 +187,7 @@ const PublicHome = () => {
             </Col>
 
             <Col md={4} className="mb-3">
-              <h4>Parte delle Reti</h4>
+              <p>Il Munlab fa parte delle reti:</p>
               <Row>
                 <Col xs={6}>
                   <img 
@@ -204,11 +217,11 @@ const PublicHome = () => {
             </Col>
 
             <Col md={4} className="mb-3">
-              <h4>Contatti</h4>
+              <h6>Contatti:</h6>
               <p>Museo dell'Argilla</p>
-              <p>Indirizzo: Via dell'Esempio, 10 - 10090 Cambiano (TO)</p>
-              <p>Email: info@munlab.it</p>
-              <p>Telefono: +39 011 1234567</p>
+              <p>Indirizzo: Via camporelle, 50 - 10090 Cambiano (TO)</p>
+              <p>Email: info@munlabtorino.it</p>
+              <p>Telefono: +39 011 944 14 39</p>
             </Col>
           </Row>
 
@@ -216,7 +229,7 @@ const PublicHome = () => {
 
           <Row>
             <Col md={6}>
-              <p>&copy; {new Date().getFullYear()} Munlab - Museo dell'Argilla. Tutti i diritti riservati.</p>
+              <p>&copy; {new Date().getFullYear()} Munlab - Ecomuseo dell'Argilla. Tutti i diritti riservati.</p>
             </Col>
             <Col md={6} className="text-md-end">
               <p>
