@@ -379,3 +379,25 @@ body {
         transform: scale(1);
     }
 }
+
+.footer {
+    background-color: #333;
+    color: #fff;
+    padding: 40px 0;
+}
+
+.newsletter-button {
+    background-color: #f39c12;
+    border: none;
+}
+
+.partner-logo {
+    max-width: 80px; /* Regola la dimensione dei loghi */
+    margin-bottom: 15px;
+}
+
+.footer .text-md-end p a {
+    color: #fff;
+    margin-left: 15px;
+}
+

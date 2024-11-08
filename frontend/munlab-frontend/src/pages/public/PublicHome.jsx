@@ -49,7 +49,7 @@ const PublicHome = () => {
       </section>
 
       {/* Activities Section */}
-      <section className="activities-section ">
+      <section className="activities-section">
         <Container>
           <h2 className="text-center mb-5">Le Nostre Attività</h2>
           <Row className="g-4">
@@ -128,90 +128,105 @@ const PublicHome = () => {
         </Container>
       </section>
 
-      {/* Partners Section */}
-      <section className="partners-section">
+      {/* Footer Section */}
+      <footer className="bg-dark text-white py-5 mt-5">
         <Container>
-          <h3 className="text-center mb-4">Il Munlab è un progetto sostenuto da</h3>
-          <Row className="justify-content-center align-items-center  g-4">
-            <Col xs={6} md={3} lg={2}>
-              <img 
-                src="/partner-logos/Regione-Piemonte-logo.jpg" 
-                alt="Regione Piemonte" 
-                className="partner-logo img-fluid"
-              />
-              <img 
-                src="/partner-logos/Comune-Cambiano-logo.jpg" 
-                alt="Comune di Cambiano"
-                className="partner-logo img-fluid"
-              />
-              <img 
-                src="/partner-logos/T2D-logo.png" 
-                alt="T2D logo" 
-                className="partner-logo img-fluid"
-              />
-
+          <Row className="mb-4">
+            <Col md={4} className="mb-3">
+              <h4>Collaborazioni e Partner</h4>
+              <p>Il Munlab è un progetto sostenuto da:</p>
+              <Row>
+                <Col xs={6}>
+                  <img 
+                    src="/partner-logos/Regione-Piemonte-logo.jpg" 
+                    alt="Regione Piemonte" 
+                    className="partner-logo img-fluid mb-2"
+                  />
+                  <img 
+                    src="/partner-logos/Comune-Cambiano-logo.jpg" 
+                    alt="Comune di Cambiano" 
+                    className="partner-logo img-fluid mb-2"
+                  />
+                  <img 
+                    src="/partner-logos/T2D-logo.png" 
+                    alt="T2D logo" 
+                    className="partner-logo img-fluid mb-2"
+                  />
+                </Col>
+                <Col xs={6}>
+                  <img 
+                    src="/partner-logos/Rete-Ecomusei-Piemonte-logo.jpg" 
+                    alt="Rete Ecomusei Piemonte" 
+                    className="partner-logo img-fluid mb-2"
+                  />
+                  <img 
+                    src="/partner-logos/Piemonte-ecomusei-logo.jpg" 
+                    alt="Piemonte Ecomusei" 
+                    className="partner-logo img-fluid mb-2"
+                  />
+                  <img 
+                    src="/partner-logos/EMI-logo.jpg" 
+                    alt="EMI logo" 
+                    className="partner-logo img-fluid mb-2"
+                  />
+                </Col>
+              </Row>
             </Col>
-            {/* Aggiungi altri partner qui */}
-          </Row>
-          <div className="text-center mt-5">
-            <h3 className="mb-4">Il Munlab è parte delle reti</h3>
-            {/* Aggiungi le reti qui */}
-            <img 
-                src="/partner-logos/Rete-Ecomusei-Piemonte-logo.jpg" 
-                alt="Rete Ecomusei Piemonte" 
-                className="partner-logo img-fluid"
-              />
-              <img 
-                src="/partner-logos/Piemonte-ecomusei-logo.jpg" 
-                alt="Piemonte Ecomusei"
-                className="partner-logo img-fluid"
-              />
-              <img 
-                src="/partner-logos/EMI-logo.jpg" 
-                alt="EMI logo" 
-                className="partner-logo img-fluid"
-              />
-              <img 
-                src="/partner-logos/Abbonamento-Musei-logo.jpg" 
-                alt="Abbonamento musei Piemonte" 
-                className="partner-logo img-fluid"
-              /><img 
-              src="/partner-logos/Fondazione-Comunita-chierese-logo.jpg" 
-              alt="T2D logo" 
-              className="partner-logo img-fluid"
-            />
-          </div>
-          <div className="text-center mt-5">
-            <h3 className="mb-4">Il Munlab collabora stabilmente con</h3>
-            {/* Aggiungi i collaboratori qui */}
-            <img 
-                src="/partner-logos/Università-Torino-logo.jpg" 
-                alt="Università di Torino" 
-                className="partner-logo img-fluid"
-              />
-              <img 
-                src="/partner-logos/Dipartimento-Scienze-della-terra.jpg" 
-                alt="Dipartimento di Scienze della Terra"
-                className="partner-logo img-fluid"
-              />
-              <img 
-                src="/partner-logos/MIC-Faenza-logo-1.jpg" 
-                alt="MIC Faenza" 
-                className="partner-logo img-fluid"
-              />
-              <img 
-                src="/partner-logos/logo-DAD-POLITO_2048x555.jpg" 
-                alt="DAD Polito"
-                className="partner-logo img-fluid"
-              /><img 
-              src="/partner-logos/T2D-logo.png" 
-              alt="T2D logo" 
-              className="partner-logo img-fluid"
-            />
 
-          </div>
+            <Col md={4} className="mb-3">
+              <h4>Parte delle Reti</h4>
+              <Row>
+                <Col xs={6}>
+                  <img 
+                    src="/partner-logos/Abbonamento-Musei-logo.jpg" 
+                    alt="Abbonamento musei Piemonte" 
+                    className="partner-logo img-fluid mb-2"
+                  />
+                  <img 
+                    src="/partner-logos/Fondazione-Comunita-chierese-logo.jpg" 
+                    alt="Fondazione della Comunità Chierese" 
+                    className="partner-logo img-fluid mb-2"
+                  />
+                </Col>
+                <Col xs={6}>
+                  <img 
+                    src="/partner-logos/Università-Torino-logo.jpg" 
+                    alt="Università di Torino" 
+                    className="partner-logo img-fluid mb-2"
+                  />
+                  <img 
+                    src="/partner-logos/Dipartimento-Scienze-della-terra.jpg" 
+                    alt="Dipartimento di Scienze della Terra" 
+                    className="partner-logo img-fluid mb-2"
+                  />
+                </Col>
+              </Row>
+            </Col>
+
+            <Col md={4} className="mb-3">
+              <h4>Contatti</h4>
+              <p>Museo dell'Argilla</p>
+              <p>Indirizzo: Via dell'Esempio, 10 - 10090 Cambiano (TO)</p>
+              <p>Email: info@munlab.it</p>
+              <p>Telefono: +39 011 1234567</p>
+            </Col>
+          </Row>
+
+          <hr className="bg-white" />
+
+          <Row>
+            <Col md={6}>
+              <p>&copy; {new Date().getFullYear()} Munlab - Museo dell'Argilla. Tutti i diritti riservati.</p>
+            </Col>
+            <Col md={6} className="text-md-end">
+              <p>
+                <a href="/privacy" className="text-white text-decoration-none">Privacy Policy</a> | 
+                <a href="/terms" className="text-white text-decoration-none ms-2">Termini di Servizio</a>
+              </p>
+            </Col>
+          </Row>
         </Container>
-      </section>
+      </footer>
     </div>
   );
 };
