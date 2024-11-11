@@ -437,5 +437,17 @@ body {
     margin-top: 1rem;
     margin-left: 1rem;
     margin-right: 1rem;
+    
+}
 
+.pending-animation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
 }

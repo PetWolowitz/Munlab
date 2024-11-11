@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Benvenuto Admin MunLab</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #2C3E50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+        .status-box {
+            background-color: #FFF3CD;
+            border: 1px solid #FFEEBA;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.8em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Benvenuto in MunLab!</h1>
+    </div>
+    
+    <div class="content">
+        <p>Gentile {{ name }},</p>
+        
+        <p>Grazie per esserti registrato come amministratore di MunLab. Siamo lieti di averti a bordo!</p>
+        
+        <div class="status-box">
+            <h3>Stato della registrazione:</h3>
+            <p>La tua richiesta è stata ricevuta e è attualmente in fase di revisione da parte del super amministratore. 
+            Riceverai una email di conferma non appena il tuo account sarà stato approvato.</p>
+        </div>
+        
+        <p>Nel frattempo, ecco alcuni punti importanti:</p>
+        <ul>
+            <li>Il processo di approvazione richiede solitamente 24-48 ore</li>
+            <li>Una volta approvato, avrai accesso a tutte le funzionalità di amministrazione</li>
+            <li>Riceverai una email di conferma con le istruzioni per accedere</li>
+        </ul>
+        
+        <p>Se hai domande o dubbi durante questo processo, non esitare a contattarci.</p>
+    </div>
+    
+    <div class="footer">
+        <p>© 2024 MunLab. Tutti i diritti riservati.</p>
+    </div>
+</body>
+</html>

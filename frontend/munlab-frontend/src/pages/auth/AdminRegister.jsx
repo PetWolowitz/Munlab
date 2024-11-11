@@ -26,6 +26,7 @@ const AdminRegister = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [generalError, setGeneralError] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
+  const [registrationStatus, setRegistrationStatus] = useState('initial'); // 'initial', 'pending', 'approved'
 
   // Stati per mostrare/nascondere le password
   const [showPassword, setShowPassword] = useState(false);
@@ -149,19 +150,31 @@ const AdminRegister = () => {
 
     setLoading(true);
     try {
-      await authService.register({
+      const response = await authService.register({
         ...formData,
         user_type: 'admin'
       });
 
-      setSuccessMessage(
-        'Registrazione effettuata con successo! La tua richiesta è in attesa di approvazione da parte del super admin. ' +
-          'Riceverai una notifica quando il tuo account sarà stato approvato.'
-      );
+      // Salva token e user type
+      if (response.data?.token) {
+        localStorage.setItem('access_token', response.data.token);
+        localStorage.setItem('user_type', 'admin');
+      }
 
-      setTimeout(() => {
-        navigate('/dashboard/admin');
-      }, 3000);
+      if (response.data?.requires_approval) {
+        setRegistrationStatus('pending');
+        setSuccessMessage(
+          'Registrazione effettuata con successo! La tua richiesta è in attesa di approvazione. ' +
+          'Riceverai una email quando il tuo account sarà stato approvato.'
+        );
+      } else {
+        setRegistrationStatus('approved');
+        setSuccessMessage('Registrazione completata con successo!');
+        // Reindirizza solo se non richiede approvazione
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 3000);
+      }
     } catch (err) {
       if (err.response?.data?.errors) {
         setErrors(err.response.data.errors);
@@ -175,6 +188,46 @@ const AdminRegister = () => {
     }
   };
 
+  // Componente per lo stato di attesa approvazione
+  const PendingApprovalScreen = () => (
+    <Container fluid className="auth-container">
+      <Card className="auth-card">
+        <Card.Body className="p-4 text-center">
+          <h3 className="mb-4">Registrazione in Attesa di Approvazione</h3>
+          
+          <div className="mb-4">
+            <div className="pending-animation mb-3">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+            
+            <p className="text-muted">
+              La tua richiesta di registrazione come amministratore è stata ricevuta 
+              ed è in attesa di approvazione da parte del super admin.
+            </p>
+            
+            <p className="text-muted">
+              Riceverai una email di conferma quando il tuo account sarà stato approvato.
+            </p>
+          </div>
+
+          <Button 
+            variant="outline-primary" 
+            onClick={() => navigate('/auth')}
+            className="rounded-pill"
+          >
+            Torna alla Home
+          </Button>
+        </Card.Body>
+      </Card>
+    </Container>
+  );
+
+  // Mostra la schermata di attesa se necessario
+  if (registrationStatus === 'pending') {
+    return <PendingApprovalScreen />;
+  }
   // Animazioni
   const pageTransition = {
     initial: { opacity: 0, x: 20 },

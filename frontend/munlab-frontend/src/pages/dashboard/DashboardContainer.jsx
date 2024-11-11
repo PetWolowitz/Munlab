@@ -1,130 +1,175 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Card, Row, Col } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Container, Row, Col, Nav, Button, Image, Dropdown } from 'react-bootstrap';
 import { motion } from 'framer-motion';
-import AnimatedAlert from '../../components/AnimatedAlert';
-
-const UserDashboard = () => {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <Container fluid className="py-4">
-        <Card className="auth-card">
-          <Card.Body className="p-4">
-            <h3 className="text-center mb-4">Dashboard Utente</h3>
-            <Row>
-              <Col md={6} className="mb-4">
-                <Card>
-                  <Card.Body>
-                    <Card.Title>Calendario Attività</Card.Title>
-                    <div className="mt-3">
-                      <p className="text-muted">Visualizza le prossime attività</p>
-                      {/* Qui integreremo il calendario */}
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-
-              <Col md={6} className="mb-4">
-                <Card>
-                  <Card.Body>
-                    <Card.Title>Sistema di Prenotazione</Card.Title>
-                    <div className="mt-3">
-                      <p className="text-muted">Gestisci le tue prenotazioni</p>
-                      {/* Qui integreremo le prenotazioni */}
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
-      </Container>
-    </motion.div>
-  );
-};
-
-const AdminDashboard = () => {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <Container fluid className="py-4">
-        <Card className="auth-card">
-          <Card.Body className="p-4">
-            <h3 className="text-center mb-4">Dashboard Amministratore</h3>
-            <Row>
-              <Col lg={4} md={6} className="mb-4">
-                <Card>
-                  <Card.Body>
-                    <Card.Title>Approvazioni Admin</Card.Title>
-                    <div className="mt-3">
-                      <p className="text-muted">Gestisci le approvazioni degli altri admin</p>
-                      {/* Qui integreremo le approvazioni */}
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-
-              <Col lg={4} md={6} className="mb-4">
-                <Card>
-                  <Card.Body>
-                    <Card.Title>Gestione Attività</Card.Title>
-                    <div className="mt-3">
-                      <p className="text-muted">Gestisci le attività del museo</p>
-                      {/* Qui integreremo la gestione attività */}
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-
-              <Col lg={4} md={6} className="mb-4">
-                <Card>
-                  <Card.Body>
-                    <Card.Title>Visualizza Prenotazioni</Card.Title>
-                    <div className="mt-3">
-                      <p className="text-muted">Monitora le prenotazioni</p>
-                      {/* Qui integreremo la visualizzazione prenotazioni */}
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
-      </Container>
-    </motion.div>
-  );
-};
+import { 
+  FaCalendarAlt, 
+  FaTicketAlt, 
+  FaUserCircle, 
+  FaSignOutAlt,
+  FaBars,
+  FaTimes,
+  FaCog,
+  FaBell
+} from 'react-icons/fa';
+import { useAuth } from '../../context/AuthContext';
+// import Calendar from './components/Calendar';
+// import ActivityList from './components/ActivityList';
+// import ProfileSection from './components/ProfileSection';
+// import NotificationCenter from './components/NotificationCenter';
+// import { generateRandomAvatar } from '../../utils/avatarUtils';
+import './Dashboard.css';
 
 const DashboardContainer = () => {
-  const [userType, setUserType] = useState(null);
-  const [error, setError] = useState('');
+  const [showSidebar, setShowSidebar] = useState(true);
+  const [activeSection, setActiveSection] = useState('calendar');
+  const { user, logout } = useAuth();
+  const [avatar] = useState(generateRandomAvatar());
 
-  useEffect(() => {
-    const storedUserType = localStorage.getItem('user_type');
-    if (storedUserType) {
-      setUserType(storedUserType);
-    } else {
-      setError('Sessione non valida. Effettua nuovamente il login.');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/auth');
+    } catch (error) {
+      console.error('Logout error:', error);
     }
-  }, []);
+  };
 
-  if (error) {
-    return (
-      <Container fluid className="py-4">
-        <AnimatedAlert show={true} variant="danger" onClose={() => setError('')}>
-          {error}
-        </AnimatedAlert>
-      </Container>
-    );
-  }
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'calendar':
+        return <Calendar />;
+      case 'bookings':
+        return <ActivityList />;
+      case 'profile':
+        return <ProfileSection />;
+      default:
+        return <Calendar />;
+    }
+  };
 
-  return userType === 'admin' ? <AdminDashboard /> : <UserDashboard />;
+  return (
+    <div className="dashboard-container">
+      {/* Sidebar */}
+      <motion.div 
+        className={`sidebar ${showSidebar ? 'show' : 'hide'}`}
+        initial={{ x: -250 }}
+        animate={{ x: showSidebar ? 0 : -250 }}
+      >
+        {/* Logo e Brand */}
+        <div className="sidebar-header">
+          <h3>MunLab</h3>
+          <Button 
+            variant="link" 
+            className="sidebar-toggle"
+            onClick={() => setShowSidebar(!showSidebar)}
+          >
+            {showSidebar ? <FaTimes /> : <FaBars />}
+          </Button>
+        </div>
+
+        {/* User Profile Preview */}
+        <div className="user-preview">
+          <Image 
+            src={avatar} 
+            roundedCircle 
+            className="profile-image"
+          />
+          <div className="user-info">
+            <h6>{user?.firstName} {user?.lastName}</h6>
+            <small className="text-muted">{user?.email}</small>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <Nav className="flex-column mt-4">
+          <Nav.Link 
+            active={activeSection === 'calendar'}
+            onClick={() => setActiveSection('calendar')}
+          >
+            <FaCalendarAlt /> Calendario
+          </Nav.Link>
+          <Nav.Link 
+            active={activeSection === 'bookings'}
+            onClick={() => setActiveSection('bookings')}
+          >
+            <FaTicketAlt /> Prenotazioni
+          </Nav.Link>
+          <Nav.Link 
+            active={activeSection === 'profile'}
+            onClick={() => setActiveSection('profile')}
+          >
+            <FaUserCircle /> Profilo
+          </Nav.Link>
+        </Nav>
+
+        {/* Logout Button */}
+        <Button 
+          variant="link" 
+          className="logout-button"
+          onClick={handleLogout}
+        >
+          <FaSignOutAlt /> Logout
+        </Button>
+      </motion.div>
+
+      {/* Main Content */}
+      <div className={`main-content ${showSidebar ? 'with-sidebar' : 'full-width'}`}>
+        {/* Top Navigation */}
+        <nav className="top-nav">
+          <Button 
+            variant="link" 
+            className="menu-button d-md-none"
+            onClick={() => setShowSidebar(!showSidebar)}
+          >
+            <FaBars />
+          </Button>
+
+          <div className="nav-right">
+            {/* Notifications */}
+            <Dropdown>
+              <Dropdown.Toggle variant="link" className="notification-bell">
+                <FaBell />
+                <span className="notification-badge">3</span>
+              </Dropdown.Toggle>
+              <Dropdown.Menu align="end">
+                <NotificationCenter />
+              </Dropdown.Menu>
+            </Dropdown>
+
+            {/* User Menu */}
+            <Dropdown>
+              <Dropdown.Toggle variant="link" className="user-menu">
+                <Image src={avatar} roundedCircle className="mini-profile" />
+              </Dropdown.Toggle>
+              <Dropdown.Menu align="end">
+                <Dropdown.Item onClick={() => setActiveSection('profile')}>
+                  <FaUserCircle /> Profilo
+                </Dropdown.Item>
+                <Dropdown.Item>
+                  <FaCog /> Impostazioni
+                </Dropdown.Item>
+                <Dropdown.Divider />
+                <Dropdown.Item onClick={handleLogout}>
+                  <FaSignOutAlt /> Logout
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+        </nav>
+
+        {/* Content Area */}
+        <Container fluid className="content-area">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            {renderContent()}
+          </motion.div>
+        </Container>
+      </div>
+    </div>
+  );
 };
 
 export default DashboardContainer;

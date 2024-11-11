@@ -3,9 +3,9 @@ from django.db import models
 class Attivita(models.Model):
     # Definisci le opzioni per il tipo di attività
     TIPO_Attivita = [
-        ('EDU', "Educativa"),
-        ('DOM', "Domenicale"),
-        ('ALT', "Altro"),
+        ('DID', "Didattica"),
+        ('LAB', "Laboratori/Visite domenicali "),
+        ('ALT', "Feste ed Eventi"),
     ]
 
     # Campi del modello Attivita

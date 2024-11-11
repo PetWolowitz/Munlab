@@ -20,7 +20,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:5173",  # Il tuo frontend Vite
 ]
-
+FRONTEND_URL = 'http://localhost:3000' 
 CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
@@ -29,8 +29,15 @@ REST_FRAMEWORK = {
     ),
 }
 
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # O il tuo provider SMTP
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'pie250787@gmail.com'
+EMAIL_HOST_PASSWORD = 'pzafbqcdteskouqq'  # Usa una password per app se usi Gmail
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-# Application definition
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -63,14 +70,14 @@ ROOT_URLCONF = "munlab.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, 'templates')],
         "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
             ],
         },
     },

@@ -142,41 +142,27 @@ const UserRegister = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setGeneralError('');
-    setSuccessMessage('');
-
-    if (!validateForm()) {
-      return;
-    }
-
     setLoading(true);
+    
     try {
       const response = await authService.register({
         ...formData,
         user_type: 'user'
       });
-
+      console.log('Registration Response:', response);
       setSuccessMessage('Registrazione completata con successo!');
-      
-      // Reindirizza dopo 2 secondi
+  
+      // Usa il nuovo shouldRedirect per gestire il reindirizzamento
       setTimeout(() => {
-        navigate('/dashboard/user');
-      }, 2000);
-
-    } catch (err) {
-      if (err.response?.data?.errors) {
-        setErrors(err.response.data.errors);
-      } else {
-        setGeneralError(
-          err.response?.data?.message || 
-          'Errore durante la registrazione. Riprova più tardi.'
-        );
-      }
+        navigate(response.shouldRedirect || '/dashboard', { replace: true });
+      }, 1500);
+  
+    } catch (error) {
+      handleRegistrationError(error);
     } finally {
       setLoading(false);
     }
   };
-
   // Form validation
   const validateForm = () => {
     const newErrors = {};

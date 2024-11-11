@@ -1,4 +1,3 @@
-// src/services/authService.js
 import axios from 'axios';
 import { sanitizeInput } from '../utils/securityUtils';
 
@@ -28,20 +27,17 @@ const authService = {
       throw new Error('Dati utente richiesti');
     }
 
-    // Prepara i dati per il backend
     const sanitizedData = {
       username: sanitizeInput(userData.username),
       email: sanitizeInput(userData.email),
       password: userData.password,
-      password2: userData.password,  // Aggiungiamo password2 come richiesto dal serializer
+      password2: userData.password,
       first_name: sanitizeInput(userData.firstName),
       last_name: sanitizeInput(userData.lastName),
       user_type: userData.user_type || 'user'
     };
 
-    // Se è un admin, aggiungi i campi specifici
     if (userData.user_type === 'admin') {
-      sanitizedData.employeeId = sanitizeInput(userData.employeeId);
       sanitizedData.role = sanitizeInput(userData.role);
       sanitizedData.department = sanitizeInput(userData.department);
     }
@@ -50,6 +46,32 @@ const authService = {
       console.log('Sending registration data:', sanitizedData);
       const response = await axios.post(`${API_URL}register/`, sanitizedData);
       console.log('Registration response:', response.data);
+
+      if (response.data.tokens) {
+        // Salva token e dati utente
+        localStorage.setItem('access_token', response.data.tokens.access);
+        localStorage.setItem('refresh_token', response.data.tokens.refresh);
+        localStorage.setItem('user_type', userData.user_type);
+        localStorage.setItem('user_data', JSON.stringify(response.data.user));
+        
+        // Imposta header per future richieste
+        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.tokens.access}`;
+
+        // Se l'utente è admin, verifica se richiede approvazione
+        if (userData.user_type === 'admin' && response.data.requires_approval) {
+          return {
+            ...response.data,
+            shouldRedirect: '/admin/pending-approval'
+          };
+        } else {
+          // Per utenti normali o admin già approvati
+          return {
+            ...response.data,
+            shouldRedirect: '/dashboard'
+          };
+        }
+      }
+
       return response.data;
     } catch (error) {
       console.error('Registration error:', error.response?.data || error);
@@ -57,31 +79,135 @@ const authService = {
     }
   },
 
-  login: async (username, password, userType) => {
+  // Aggiungi questa nuova funzione per gestire i reindirizzamenti
+  handleAuthRedirect: (userData) => {
+    const userType = userData?.user_type || localStorage.getItem('user_type');
+    const isApproved = userData?.is_approved;
+
+    if (userType === 'admin' && !isApproved) {
+      return '/admin/pending-approval';
+    }
+    return '/dashboard';
+  },
+
+  // Aggiungi questa funzione per verificare se l'utente può accedere alla dashboard
+  canAccessDashboard: async () => {
+    const userType = localStorage.getItem('user_type');
+    
+    if (userType === 'admin') {
+      try {
+        const status = await authService.checkApprovalStatus();
+        return status.is_approved;
+      } catch (error) {
+        console.error('Error checking dashboard access:', error);
+        return false;
+      }
+    }
+    
+    // Gli utenti normali possono sempre accedere alla loro dashboard
+    return userType === 'user';
+  },
+
+  // Remember Me
+  login: async (username, password, rememberMe = false) => {
     try {
-      const response = await axios.post(`${API_URL}token/`, {
+      const response = await axios.post(`${API_URL}login/`, {
         username: sanitizeInput(username),
-        password: password,
-        user_type: userType
+        password,
+        remember_me: rememberMe
       });
       
-      if (response.data.access) {
-        localStorage.setItem('access_token', response.data.access);
-        localStorage.setItem('user_type', userType);
-        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
+      if (response.data.tokens) {
+        // Se "remember me" è attivo, salva in localStorage, altrimenti in sessionStorage
+        const storage = rememberMe ? localStorage : sessionStorage;
+        
+        storage.setItem('access_token', response.data.tokens.access);
+        storage.setItem('refresh_token', response.data.tokens.refresh);
+        storage.setItem('user_type', response.data.user.user_type);
+        storage.setItem('user_data', JSON.stringify(response.data.user));
+        
+        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.tokens.access}`;
       }
       
       return response.data;
     } catch (error) {
-      console.error('Login error:', error.response?.data || error);
+      handleAuthError(error);
       throw error;
+    }
+  },
+
+  // Reset Password
+  requestPasswordReset: async (email) => {
+    try {
+      const response = await axios.post(`${API_URL}request-password-reset/`, {
+        email: sanitizeInput(email)
+      });
+      return response.data;
+    } catch (error) {
+      handleAuthError(error);
+      throw error;
+    }
+  },
+
+  resetPassword: async (token, newPassword) => {
+    try {
+      const response = await axios.post(`${API_URL}reset-password/`, {
+        token,
+        password: newPassword
+      });
+      return response.data;
+    } catch (error) {
+      handleAuthError(error);
+      throw error;
+    }
+  },
+
+  // Token Refresh
+  refreshToken: async () => {
+    try {
+      const refresh = localStorage.getItem('refresh_token') || 
+                      sessionStorage.getItem('refresh_token');
+      
+      if (!refresh) throw new Error('No refresh token available');
+
+      const response = await axios.post(`${API_URL}token/refresh/`, {
+        refresh
+      });
+
+      if (response.data.access) {
+        const storage = localStorage.getItem('refresh_token') ? 
+                        localStorage : sessionStorage;
+        
+        storage.setItem('access_token', response.data.access);
+        axios.defaults.headers.common['Authorization'] = 
+          `Bearer ${response.data.access}`;
+      }
+
+      return response.data;
+    } catch (error) {
+      authService
     }
   },
 
   logout: () => {
     localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     localStorage.removeItem('user_type');
+    localStorage.removeItem('user_data');
     delete axios.defaults.headers.common['Authorization'];
+  },
+
+  isAuthenticated: () => {
+    return !!localStorage.getItem('access_token');
+  },
+
+  getUserType: () => {
+    return localStorage.getItem('user_type');
+  },
+
+  getUserData: () => {
+    const userData = localStorage.getItem('user_data');
+    return userData ? JSON.parse(userData) : null;
   },
 
   checkApprovalStatus: async () => {
@@ -130,7 +256,12 @@ const authService = {
   getCurrentUser: () => {
     const token = localStorage.getItem('access_token');
     const userType = localStorage.getItem('user_type');
-    return token ? { token, userType } : null;
+    const userData = localStorage.getItem('user_data');
+    return token ? { 
+      token, 
+      userType,
+      ...JSON.parse(userData || '{}')
+    } : null;
   },
 
   // Gestione social login
@@ -144,6 +275,7 @@ const authService = {
       if (response.data.access) {
         localStorage.setItem('access_token', response.data.access);
         localStorage.setItem('user_type', 'user');
+        localStorage.setItem('user_data', JSON.stringify(response.data.user));
         axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
       }
       
@@ -164,6 +296,7 @@ const authService = {
       if (authResponse.data.access) {
         localStorage.setItem('access_token', authResponse.data.access);
         localStorage.setItem('user_type', 'user');
+        localStorage.setItem('user_data', JSON.stringify(authResponse.data.user));
         axios.defaults.headers.common['Authorization'] = `Bearer ${authResponse.data.access}`;
       }
       
