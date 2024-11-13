@@ -97,7 +97,7 @@ const AccountTypeSelection = () => {
                 <div className="icon-container mb-auto mt-3 p-3 bg-gray-50 rounded-full">
                   <img src="/admin-icon.svg" alt="Admin" width="64" height="64" />
                 </div>
-                <div className="mt-auto mb-3">Operatore</div>
+                <div className="mt-auto mb-3">Operatori</div>
                 {accountType === 'admin' && (
                   <motion.div 
                     className="check-icon"

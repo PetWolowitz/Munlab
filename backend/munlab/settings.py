@@ -13,9 +13,7 @@ SECRET_KEY = "django-insecure-23!0%vc1wo6vlwi%!w1f%#!2(3j7g0n-0a1*xve7v=9ddrb8*#
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
-# Aggiunta del modello utente personalizzato
-AUTH_USER_MODEL = 'users.CustomUser'
-# Configurazione CORS
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:5173",  # Il tuo frontend Vite
@@ -23,11 +21,7 @@ CORS_ALLOWED_ORIGINS = [
 FRONTEND_URL = 'http://localhost:3000' 
 CORS_ALLOW_CREDENTIALS = True
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-}
+
 
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -53,6 +47,14 @@ INSTALLED_APPS = [
     
 
 ]
+# Custom user model
+AUTH_USER_MODEL = 'users.CustomUser'
+# Django REST Framework JWT
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  # CORS Middleware per gestire richieste tra domini

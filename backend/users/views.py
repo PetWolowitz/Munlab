@@ -120,7 +120,89 @@ class ValidateTokenView(APIView):
             'valid': True,
             'user': serializer.data
         })
+class ApproveAdminView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def post(self, request, user_id):
+        try:
+            # Verifica che l'utente che fa la richiesta sia un super admin
+            if request.user.user_type != 'super_admin':
+                return Response({
+                    'error': 'Non hai i permessi necessari'
+                }, status=status.HTTP_403_FORBIDDEN)
+
+            admin_user = CustomUser.objects.get(id=user_id, user_type='admin')
+            approved = request.data.get('approved', True)
+
+            if approved:
+                # Approva l'admin
+                admin_user.approve(request.user)
+                
+                # Invia email di conferma
+                context = {
+                    'name': admin_user.first_name,
+                    'login_url': f"{settings.FRONTEND_URL}/login"
+                }
+                html_content = render_to_string('emails/admin_approved.html', context)
+                text_content = strip_tags(html_content)
+                
+                email = EmailMultiAlternatives(
+                    subject='Account Amministratore Approvato',
+                    body=text_content,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[admin_user.email]
+                )
+                email.attach_alternative(html_content, "text/html")
+                email.send()
+                
+                message = 'Admin approvato con successo'
+            else:
+                # Rifiuta l'admin
+                admin_user.delete()  # O imposta un flag "rejected" se preferisci mantenere il record
+                
+                # Invia email di rifiuto
+                context = {
+                    'name': admin_user.first_name
+                }
+                html_content = render_to_string('emails/admin_rejected.html', context)
+                text_content = strip_tags(html_content)
+                
+                email = EmailMultiAlternatives(
+                    subject='Richiesta Account Amministratore Rifiutata',
+                    body=text_content,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[admin_user.email]
+                )
+                email.attach_alternative(html_content, "text/html")
+                email.send()
+                
+                message = 'Richiesta admin rifiutata'
+
+            return Response({'message': message})
+
+        except CustomUser.DoesNotExist:
+            return Response(
+                {'error': 'Utente non trovato'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+class PendingAdminsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Verifica che l'utente sia un super admin
+        if request.user.user_type != 'super_admin':
+            return Response({
+                'error': 'Non hai i permessi necessari'
+            }, status=status.HTTP_403_FORBIDDEN)
+
+        pending_admins = CustomUser.objects.filter(
+            user_type='admin',
+            is_approved=False
+        )
+        serializer = AdminApprovalSerializer(pending_admins, many=True)
+        return Response(serializer.data)
+    
 class LoginView(APIView):
     permission_classes = [AllowAny]
 

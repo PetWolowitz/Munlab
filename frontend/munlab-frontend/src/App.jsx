@@ -8,7 +8,7 @@ import AccountTypeSelection from './pages/auth/AccountTypeSelection';
 import UserRegister from './pages/auth/UserRegister';
 import AdminRegister from './pages/auth/AdminRegister';
 import DashboardContainer from './pages/dashboard/DashboardContainer';
-import PendingApproval from './pages/auth/PendingApproval';
+import AdminPendingApproval from './pages/auth/AdminPendingApproval';
 import Activities from './pages/Activities';
 import Bookings from './pages/Bookings';
 import UserProfile from './pages/user/UserProfile';
@@ -43,9 +43,9 @@ function App() {
             <Route path="/auth/user-register" element={<UserRegister />} />
             <Route path="/auth/admin-register" element={<AdminRegister />} />
 
-            {/* Rotta per la pagina di attesa dell'approvazione dell'admin */}
-            <Route path="/admin/pending-approval" element={<PendingApproval />} />
-            
+             {/* Rotta per admin in attesa di approvazione */}
+            <Route path="/admin/pending-approval" element={<AdminPendingApproval />} />
+        
             {/* Dashboard e relative funzionalità */}
             <Route
               path="/dashboard"
@@ -86,7 +86,6 @@ function App() {
 
             {/* Rotta per gestire URL non validi */}
             <Route path="*" element={<Navigate to="/" />} />
-          
           </Routes>
         </Router>
       </AuthProvider>
