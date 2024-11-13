@@ -1,119 +1,225 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
-import { FaCalendar, FaUsers, FaBookmark } from 'react-icons/fa';
-import axios from 'axios';
+import React, { useState } from 'react';
+import { Container, Row, Col, Card, Button, Modal, Form, Tab, Nav } from 'react-bootstrap';
+import { FaCalendarPlus, FaUsersCog, FaClipboardList } from 'react-icons/fa';
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState({
-    totalActivities: 0,
-    totalBookings: 0,
-    totalUsers: 0,
+  const [showActivityModal, setShowActivityModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('activities');
+  const [activityForm, setActivityForm] = useState({
+    title: '',
+    description: '',
+    date: '',
+    time: '',
+    maxParticipants: '',
+    price: ''
   });
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const token = localStorage.getItem('access_token');
-        const response = await axios.get('http://127.0.0.1:8000/api/admin/stats', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setStats(response.data);
-      } catch (error) {
-        console.error("Errore nel recupero delle statistiche:", error);
-      } finally {
-        setLoading(false);
+  const handleAddActivity = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/activities/create/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify({
+          ...activityForm,
+          datetime: `${activityForm.date}T${activityForm.time}`
+        })
+      });
+
+      if (response.ok) {
+        setShowActivityModal(false);
+        // Aggiorna la lista delle attività
       }
-    };
-
-    fetchStats();
-  }, []);
-
-  const StatCard = ({ title, value, icon: Icon, link, linkText }) => (
-    <Card className="h-100 shadow-sm">
-      <Card.Body className="text-center">
-        <div className="display-4 mb-3 text-primary">
-          <Icon />
-        </div>
-        <Card.Title>{title}</Card.Title>
-        <div className="display-6 mb-3">{value}</div>
-        <Button
-          variant="primary"
-          as={Link}
-          to={link}
-          className="rounded-pill"
-        >
-          {linkText}
-        </Button>
-      </Card.Body>
-    </Card>
-  );
-
-  if (loading) {
-    return (
-      <div className="admin-dashboard">
-        <div className="admin-sidebar">
-          <nav>
-            <Link to="/admin/activities" className="admin-nav-link">Attività</Link>
-            <Link to="/admin/bookings" className="admin-nav-link">Prenotazioni</Link>
-            <Link to="/admin/users" className="admin-nav-link">Utenti</Link>
-          </nav>
-        </div>
-        <div className="admin-content d-flex justify-content-center align-items-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Caricamento...</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
+    } catch (error) {
+      console.error('Error adding activity:', error);
+    }
+  };
 
   return (
-    <div className="admin-dashboard">
-      <div className="admin-sidebar">
-        <nav>
-          <Link to="/admin/activities" className="admin-nav-link">Attività</Link>
-          <Link to="/admin/bookings" className="admin-nav-link">Prenotazioni</Link>
-          <Link to="/admin/users" className="admin-nav-link">Utenti</Link>
-        </nav>
-      </div>
-      <div className="admin-content">
-        <Container fluid>
-          <h2 className="mb-4">Dashboard Amministrativa</h2>
-          <Row className="g-4">
-            <Col md={4}>
-              <StatCard
-                title="Attività Totali"
-                value={stats.totalActivities}
-                icon={FaCalendar}
-                link="/admin/activities"
-                linkText="Gestisci Attività"
+    <Container fluid className="py-4">
+      <Tab.Container id="dashboard-tabs" activeKey={activeTab} onSelect={setActiveTab}>
+        <Row>
+          <Col md={3}>
+            <Card className="mb-4">
+              <Card.Body>
+                <Nav variant="pills" className="flex-column">
+                  <Nav.Item>
+                    <Nav.Link eventKey="activities">
+                      <FaCalendarPlus className="me-2" />
+                      Gestione Attività
+                    </Nav.Link>
+                  </Nav.Item>
+                  <Nav.Item>
+                    <Nav.Link eventKey="bookings">
+                      <FaClipboardList className="me-2" />
+                      Prenotazioni
+                    </Nav.Link>
+                  </Nav.Item>
+                  <Nav.Item>
+                    <Nav.Link eventKey="approvals">
+                      <FaUsersCog className="me-2" />
+                      Approvazioni Admin
+                    </Nav.Link>
+                  </Nav.Item>
+                </Nav>
+              </Card.Body>
+            </Card>
+          </Col>
+
+          <Col md={9}>
+            <Tab.Content>
+              <Tab.Pane eventKey="activities">
+                <Card>
+                  <Card.Body>
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                      <h4>Gestione Attività</h4>
+                      <Button onClick={() => setShowActivityModal(true)}>
+                        + Nuova Attività
+                      </Button>
+                    </div>
+                    
+                    {/* Lista delle attività esistenti */}
+                    <ActivityList />
+                  </Card.Body>
+                </Card>
+              </Tab.Pane>
+
+              <Tab.Pane eventKey="bookings">
+                <Card>
+                  <Card.Body>
+                    <h4>Gestione Prenotazioni</h4>
+                    {/* Lista delle prenotazioni */}
+                    <BookingsList />
+                  </Card.Body>
+                </Card>
+              </Tab.Pane>
+
+              <Tab.Pane eventKey="approvals">
+                <Card>
+                  <Card.Body>
+                    <h4>Approvazioni Admin in Attesa</h4>
+                    {/* Lista degli admin da approvare */}
+                    <AdminApprovalList />
+                  </Card.Body>
+                </Card>
+              </Tab.Pane>
+            </Tab.Content>
+          </Col>
+        </Row>
+      </Tab.Container>
+
+      {/* Modal per aggiungere una nuova attività */}
+      <Modal show={showActivityModal} onHide={() => setShowActivityModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Aggiungi Nuova Attività</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleAddActivity}>
+            <Form.Group className="mb-3">
+              <Form.Label>Titolo</Form.Label>
+              <Form.Control
+                type="text"
+                value={activityForm.title}
+                onChange={(e) => setActivityForm(prev => ({
+                  ...prev,
+                  title: e.target.value
+                }))}
+                required
               />
-            </Col>
-            <Col md={4}>
-              <StatCard
-                title="Prenotazioni Totali"
-                value={stats.totalBookings}
-                icon={FaBookmark}
-                link="/admin/bookings"
-                linkText="Visualizza Prenotazioni"
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Descrizione</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={activityForm.description}
+                onChange={(e) => setActivityForm(prev => ({
+                  ...prev,
+                  description: e.target.value
+                }))}
+                required
               />
-            </Col>
-            <Col md={4}>
-              <StatCard
-                title="Utenti Registrati"
-                value={stats.totalUsers}
-                icon={FaUsers}
-                link="/admin/users"
-                linkText="Gestisci Utenti"
-              />
-            </Col>
-          </Row>
-        </Container>
-      </div>
-    </div>
+            </Form.Group>
+
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Data</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={activityForm.date}
+                    onChange={(e) => setActivityForm(prev => ({
+                      ...prev,
+                      date: e.target.value
+                    }))}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Ora</Form.Label>
+                  <Form.Control
+                    type="time"
+                    value={activityForm.time}
+                    onChange={(e) => setActivityForm(prev => ({
+                      ...prev,
+                      time: e.target.value
+                    }))}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Numero massimo partecipanti</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={activityForm.maxParticipants}
+                    onChange={(e) => setActivityForm(prev => ({
+                      ...prev,
+                      maxParticipants: e.target.value
+                    }))}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Prezzo</Form.Label>
+                  <Form.Control
+                    type="number"
+                    step="0.01"
+                    value={activityForm.price}
+                    onChange={(e) => setActivityForm(prev => ({
+                      ...prev,
+                      price: e.target.value
+                    }))}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <div className="text-end">
+              <Button variant="secondary" className="me-2" onClick={() => setShowActivityModal(false)}>
+                Annulla
+              </Button>
+              <Button type="submit">
+                Aggiungi Attività
+              </Button>
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
+    </Container>
   );
 };
 

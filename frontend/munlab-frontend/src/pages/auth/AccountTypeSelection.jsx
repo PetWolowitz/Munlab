@@ -8,15 +8,12 @@ import AnimatedAlert from '../../components/AnimatedAlert';
 import '../../styles/auth.css';
 
 const AccountTypeSelection = () => {
-  // Stati esistenti
   const [accountType, setAccountType] = useState('');
   const [formData, setFormData] = useState({
     username: '',
     password: '',
     rememberMe: false
   });
-
-  // Nuovi stati per funzionalità avanzate
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -31,8 +28,6 @@ const AccountTypeSelection = () => {
 
     try {
       const response = await login(formData.username, formData.password, accountType);
-      
-      // Gestione del reindirizzamento basata sul tipo utente
       if (accountType === 'admin') {
         if (response.user?.is_approved) {
           navigate('/dashboard');
@@ -43,10 +38,7 @@ const AccountTypeSelection = () => {
         navigate('/dashboard');
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message || 
-        'Errore durante il login. Verifica le tue credenziali.'
-      );
+      setError(err.response?.data?.message || 'Errore durante il login. Verifica le tue credenziali.');
     } finally {
       setLoading(false);
     }
@@ -55,9 +47,7 @@ const AccountTypeSelection = () => {
   const handleSocialLogin = async (provider) => {
     setLoading(true);
     try {
-      const response = await (provider === 'google' 
-        ? login('google') 
-        : login('facebook'));
+      const response = await (provider === 'google' ? login('google') : login('facebook'));
       navigate('/dashboard');
     } catch (err) {
       setError(`Errore durante l'accesso con ${provider}`);
@@ -67,13 +57,13 @@ const AccountTypeSelection = () => {
   };
 
   return (
-    <Container fluid className="auth-container">
+    <Container fluid className="auth-container shadow">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 2 }}
       >
-        <Card className="auth-card">
+        <Card className="auth-card shadow-lg bg-white rounded-lg">
           <Card.Body className="p-4">
             <motion.h3 
               className="text-center mb-4"
@@ -86,15 +76,28 @@ const AccountTypeSelection = () => {
             <div className="d-flex justify-content-center gap-4 mb-5">
               {/* Card Amministratore */}
               <motion.div 
-                className={`account-type-card p-3 text-center ${accountType === 'admin' ? 'selected' : ''}`}
+                className={`account-type-card p-4 text-center shadow hover:shadow-md transition-shadow duration-300 ${
+                  accountType === 'admin' ? 'selected shadow-lg ring-2 ring-blue-500' : ''
+                }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setAccountType('admin')}
+                style={{
+                  flex: 1,
+                  maxWidth: '200px',
+                  backgroundColor: 'white',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  minHeight: '180px'
+                }}
               >
-                <div className="icon-container mb-2">
+                <div className="icon-container mb-auto mt-3 p-3 bg-gray-50 rounded-full">
                   <img src="/admin-icon.svg" alt="Admin" width="64" height="64" />
                 </div>
-                <div>Amministratore</div>
+                <div className="mt-auto mb-3">Operatore</div>
                 {accountType === 'admin' && (
                   <motion.div 
                     className="check-icon"
@@ -108,15 +111,28 @@ const AccountTypeSelection = () => {
 
               {/* Card Utente */}
               <motion.div 
-                className={`account-type-card p-3 text-center ${accountType === 'user' ? 'selected' : ''}`}
+                className={`account-type-card p-4 text-center shadow hover:shadow-md transition-shadow duration-300 ${
+                  accountType === 'user' ? 'selected shadow-lg ring-2 ring-blue-500' : ''
+                }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setAccountType('user')}
+                style={{
+                  flex: 1,
+                  maxWidth: '200px',
+                  backgroundColor: 'white',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  minHeight: '180px'
+                }}
               >
-                <div className="icon-container mb-2">
+                <div className="icon-container mb-auto mt-3 p-3 bg-gray-50 rounded-full">
                   <img src="/user-icon.svg" alt="User" width="64" height="64" />
                 </div>
-                <div>Utente</div>
+                <div className="mt-auto mb-3">Visitatori</div>
                 {accountType === 'user' && (
                   <motion.div 
                     className="check-icon"
@@ -153,7 +169,6 @@ const AccountTypeSelection = () => {
                 transition={{ delay: 0.2 }}
               >
                 <Form onSubmit={handleSubmit}>
-                  {/* Username Field */}
                   <Form.Group className="mb-3">
                     <div className="position-relative">
                       <FaUser className="position-absolute top-50 translate-middle-y ms-3 text-muted" />
@@ -172,7 +187,6 @@ const AccountTypeSelection = () => {
                     </div>
                   </Form.Group>
 
-                  {/* Password Field */}
                   <Form.Group className="mb-4">
                     <div className="position-relative">
                       <FaLock className="position-absolute top-50 translate-middle-y ms-3 text-muted" />
@@ -198,7 +212,6 @@ const AccountTypeSelection = () => {
                     </div>
                   </Form.Group>
 
-                  {/* Remember Me & Forgot Password */}
                   <div className="d-flex justify-content-between align-items-center mb-4">
                     <Form.Check
                       type="checkbox"
@@ -219,7 +232,6 @@ const AccountTypeSelection = () => {
                     </Button>
                   </div>
 
-                  {/* Login Button */}
                   <Button
                     type="submit"
                     className="w-100 mb-3 rounded-pill"
@@ -241,7 +253,6 @@ const AccountTypeSelection = () => {
                     )}
                   </Button>
 
-                  {/* Social Login */}
                   <div className="position-relative mb-4">
                     <hr />
                     <span className="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted">
@@ -270,7 +281,6 @@ const AccountTypeSelection = () => {
                     </Button>
                   </div>
 
-                  {/* Register Link */}
                   <div className="text-center">
                     <Button
                       variant="link"

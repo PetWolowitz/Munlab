@@ -474,7 +474,8 @@ const AdminRegister = () => {
                   disabled={loading}
                   style={{
                     backgroundColor: 'var(--primary-color)',
-                    border: 'none'
+                    border: 'none',
+                    
                   }}
                 >
                   {loading ? 'Registrazione in corso...' : 'Completa Registrazione'}
