@@ -7,6 +7,7 @@ import { validateField, validatePassword } from '../../utils/validationUtils';
 import authService from '../../services/authService';
 import ProgressSteps from '../../components/ProgressSteps';
 import AnimatedAlert from '../../components/AnimatedAlert';
+import Loader from '../../components/Loader'; // Import del Loader
 import '../../styles/layout.css';
 
 const UserRegister = () => {
@@ -20,19 +21,17 @@ const UserRegister = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // Stato per il loader
   const [successMessage, setSuccessMessage] = useState('');
   const [generalError, setGeneralError] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
 
-  // Aggiunta degli stati per mostrare/nascondere le password
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   const validationTimeout = useRef(null);
   const navigate = useNavigate();
 
-  // Pulizia timeout al dismount
   useEffect(() => {
     return () => {
       if (validationTimeout.current) {
@@ -52,21 +51,19 @@ const UserRegister = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
-    // Aggiorna immediatamente il valore del campo
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
       [name]: value
     }));
 
-    // Ritarda la validazione per migliorare le performance
     if (validationTimeout.current) {
       clearTimeout(validationTimeout.current);
     }
 
     validationTimeout.current = setTimeout(() => {
       const error = validateField(name, value);
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         [name]: error
       }));
@@ -81,7 +78,7 @@ const UserRegister = () => {
       } else {
         await authService.handleFacebookLogin();
       }
-      navigate('/calendar');
+      navigate('/dashboard', { replace: true });
     } catch (error) {
       setGeneralError(`Errore durante l'accesso con ${provider}`);
     } finally {
@@ -89,7 +86,6 @@ const UserRegister = () => {
     }
   };
 
-  // Funzione per calcolare la forza della password
   const getPasswordStrength = (password) => {
     if (!password) return 0;
     let strength = 0;
@@ -101,7 +97,6 @@ const UserRegister = () => {
     return strength;
   };
 
-  // Componente per l'indicatore di forza della password
   const PasswordStrengthIndicator = ({ password }) => {
     const strength = getPasswordStrength(password);
     const getColor = () => {
@@ -140,33 +135,9 @@ const UserRegister = () => {
     );
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    try {
-      const response = await authService.register({
-        ...formData,
-        user_type: 'user'
-      });
-      console.log('Registration Response:', response);
-      setSuccessMessage('Registrazione completata con successo!');
-  
-      // Usa il nuovo shouldRedirect per gestire il reindirizzamento
-      setTimeout(() => {
-        navigate(response.shouldRedirect || '/dashboard', { replace: true });
-      }, 1500);
-  
-    } catch (error) {
-      handleRegistrationError(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  // Form validation
   const validateForm = () => {
     const newErrors = {};
-    Object.keys(formData).forEach(key => {
+    Object.keys(formData).forEach((key) => {
       if (key !== 'confirmPassword') {
         const error = validateField(key, formData[key]);
         if (error) newErrors[key] = error;
@@ -186,6 +157,32 @@ const UserRegister = () => {
     return true;
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await authService.register({
+        ...formData,
+        user_type: 'user'
+      });
+
+      setSuccessMessage('Registrazione completata con successo!');
+
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 1500);
+    } catch (error) {
+      setGeneralError('Errore durante la registrazione. Riprova più tardi.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Container fluid className="auth-container">
       <motion.div
@@ -196,44 +193,17 @@ const UserRegister = () => {
         <Card className="auth-card">
           <Card.Body className="p-4">
             <h3 className="text-center mb-4">Registrazione Utente</h3>
-            
+
             <ProgressSteps currentStep={currentStep} totalSteps={3} />
 
-            {/* Social Login Section */}
-            <div className="text-center mb-4">
-              <p className="text-muted">Registrati con</p>
-              <div className="d-flex justify-content-center gap-3">
-                <Button 
-                  variant="outline-danger" 
-                  className="rounded-pill social-button"
-                  onClick={() => handleSocialLogin('google')}
-                  disabled={loading}
-                >
-                  <FaGoogle className="me-2" />
-                  Google
-                </Button>
-                <Button 
-                  variant="outline-primary" 
-                  className="rounded-pill social-button"
-                  onClick={() => handleSocialLogin('facebook')}
-                  disabled={loading}
-                >
-                  <FaFacebook className="me-2" />
-                  Facebook
-                </Button>
-              </div>
-              <div className="position-relative my-4">
-                <hr />
-                <span className="position-absolute top-50 start-50 translate-middle px-3 bg-white text-muted">
-                  oppure
-                </span>
-              </div>
-            </div>
+            {/* Loader durante il caricamento */}
+            {loading && <Loader />}
 
+            {/* Errori e messaggi di successo */}
             {generalError && (
-              <AnimatedAlert 
+              <AnimatedAlert
                 show={true}
-                variant="danger" 
+                variant="danger"
                 onClose={() => setGeneralError('')}
               >
                 {generalError}
@@ -241,9 +211,9 @@ const UserRegister = () => {
             )}
 
             {successMessage && (
-              <AnimatedAlert 
+              <AnimatedAlert
                 show={true}
-                variant="success" 
+                variant="success"
                 onClose={() => setSuccessMessage('')}
               >
                 {successMessage}
@@ -344,7 +314,7 @@ const UserRegister = () => {
                           <Form.Label>Password</Form.Label>
                           <div className="position-relative">
                             <Form.Control
-                              type={showPassword ? "text" : "password"}
+                              type={showPassword ? 'text' : 'password'}
                               name="password"
                               value={formData.password}
                               onChange={handleInputChange}
@@ -372,7 +342,7 @@ const UserRegister = () => {
                           <Form.Label>Conferma Password</Form.Label>
                           <div className="position-relative">
                             <Form.Control
-                              type={showConfirmPassword ? "text" : "password"}
+                              type={showConfirmPassword ? 'text' : 'password'}
                               name="confirmPassword"
                               value={formData.confirmPassword}
                               onChange={handleInputChange}
@@ -403,18 +373,18 @@ const UserRegister = () => {
                 {currentStep > 1 && (
                   <Button
                     variant="outline-primary"
-                    onClick={() => setCurrentStep(curr => curr - 1)}
+                    onClick={() => setCurrentStep((curr) => curr - 1)}
                     className="rounded-pill"
                     disabled={loading}
                   >
                     Indietro
                   </Button>
                 )}
-                
+
                 {currentStep < 3 ? (
                   <Button
                     variant="primary"
-                    onClick={() => setCurrentStep(curr => curr + 1)}
+                    onClick={() => setCurrentStep((curr) => curr + 1)}
                     className="rounded-pill ms-auto"
                     disabled={loading}
                   >
@@ -430,7 +400,7 @@ const UserRegister = () => {
                       border: 'none'
                     }}
                   >
-                    {loading ? 'Registrazione in corso...' : 'Completa Registrazione'}
+                    {loading ? <Loader /> : 'Completa Registrazione'}
                   </Button>
                 )}
               </div>

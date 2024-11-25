@@ -7,6 +7,7 @@ import { validateField, validatePassword } from '../../utils/validationUtils';
 import authService from '../../services/authService';
 import ProgressSteps from '../../components/ProgressSteps';
 import AnimatedAlert from '../../components/AnimatedAlert';
+import Loader from '../../components/Loader'; // Import del componente Loader
 import '../../styles/layout.css';
 
 const AdminRegister = () => {
@@ -22,13 +23,12 @@ const AdminRegister = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // Stato per il loader
   const [successMessage, setSuccessMessage] = useState('');
   const [generalError, setGeneralError] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
   const [registrationStatus, setRegistrationStatus] = useState('initial'); // 'initial', 'pending', 'approved'
 
-  // Stati per mostrare/nascondere le password
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -47,13 +47,11 @@ const AdminRegister = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // Aggiorna immediatamente il valore del campo
     setFormData((prev) => ({
       ...prev,
       [name]: value
     }));
 
-    // Ritarda la validazione per migliorare le performance
     if (validationTimeout.current) {
       clearTimeout(validationTimeout.current);
     }
@@ -67,7 +65,6 @@ const AdminRegister = () => {
     }, 500);
   };
 
-  // Funzione per calcolare la forza della password
   const getPasswordStrength = (password) => {
     if (!password) return 0;
     let strength = 0;
@@ -79,7 +76,6 @@ const AdminRegister = () => {
     return strength;
   };
 
-  // Componente per l'indicatore di forza della password
   const PasswordStrengthIndicator = ({ password }) => {
     const strength = getPasswordStrength(password);
     const getColor = () => {
@@ -155,7 +151,6 @@ const AdminRegister = () => {
         user_type: 'admin'
       });
 
-      // Salva token e user type
       if (response.data?.token) {
         localStorage.setItem('access_token', response.data.token);
         localStorage.setItem('user_type', 'admin');
@@ -170,7 +165,6 @@ const AdminRegister = () => {
       } else {
         setRegistrationStatus('approved');
         setSuccessMessage('Registrazione completata con successo!');
-        // Reindirizza solo se non richiede approvazione
         setTimeout(() => {
           navigate('/dashboard');
         }, 3000);
@@ -188,30 +182,18 @@ const AdminRegister = () => {
     }
   };
 
-  // Componente per lo stato di attesa approvazione
   const PendingApprovalScreen = () => (
     <Container fluid className="auth-container">
       <Card className="auth-card">
         <Card.Body className="p-4 text-center">
           <h3 className="mb-4">Registrazione in Attesa di Approvazione</h3>
-          
           <div className="mb-4">
-            <div className="pending-animation mb-3">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            </div>
-            
+            <Loader /> {/* Usa il componente Loader */}
             <p className="text-muted">
               La tua richiesta di registrazione come amministratore è stata ricevuta 
               ed è in attesa di approvazione da parte del super admin.
             </p>
-            
-            <p className="text-muted">
-              Riceverai una email di conferma quando il tuo account sarà stato approvato.
-            </p>
           </div>
-
           <Button 
             variant="outline-primary" 
             onClick={() => navigate('/auth')}
@@ -224,11 +206,10 @@ const AdminRegister = () => {
     </Container>
   );
 
-  // Mostra la schermata di attesa se necessario
   if (registrationStatus === 'pending') {
     return <PendingApprovalScreen />;
   }
-  // Animazioni
+
   const pageTransition = {
     initial: { opacity: 0, x: 20 },
     animate: { opacity: 1, x: 0 },
@@ -241,21 +222,17 @@ const AdminRegister = () => {
       <Card className="auth-card">
         <Card.Body className="p-4">
           <h3 className="text-center mb-4">Registrazione Amministratore</h3>
-
           <ProgressSteps currentStep={currentStep} totalSteps={3} />
-
           {generalError && (
             <AnimatedAlert show={true} variant="danger" onClose={() => setGeneralError('')}>
               {generalError}
             </AnimatedAlert>
           )}
-
           {successMessage && (
             <AnimatedAlert show={true} variant="success" onClose={() => setSuccessMessage('')}>
               {successMessage}
             </AnimatedAlert>
           )}
-
           <Form onSubmit={handleSubmit} noValidate>
             <AnimatePresence mode="wait">
               <motion.div key={currentStep} {...pageTransition}>
@@ -297,7 +274,6 @@ const AdminRegister = () => {
                     </Col>
                   </Row>
                 )}
-
                 {currentStep === 2 && (
                   <Row className="mb-3">
                     <Col md={6}>
@@ -336,12 +312,10 @@ const AdminRegister = () => {
                     </Col>
                   </Row>
                 )}
-
                 {currentStep === 3 && (
                   <>
                     <Row className="mb-3">
                       <Col md={6}>
-                        {/* Campo Password con mostra/nascondi */}
                         <Form.Group>
                           <Form.Label>Password</Form.Label>
                           <div className="position-relative">
@@ -370,7 +344,6 @@ const AdminRegister = () => {
                         </Form.Group>
                       </Col>
                       <Col md={6}>
-                        {/* Campo Conferma Password con mostra/nascondi */}
                         <Form.Group>
                           <Form.Label>Conferma Password</Form.Label>
                           <div className="position-relative">
@@ -446,8 +419,6 @@ const AdminRegister = () => {
                 )}
               </motion.div>
             </AnimatePresence>
-
-            {/* Pulsanti di navigazione */}
             <div className="d-flex justify-content-between mt-4">
               {currentStep > 1 && (
                 <Button
@@ -458,7 +429,6 @@ const AdminRegister = () => {
                   Indietro
                 </Button>
               )}
-
               {currentStep < 3 ? (
                 <Button
                   variant="primary"
@@ -474,11 +444,10 @@ const AdminRegister = () => {
                   disabled={loading}
                   style={{
                     backgroundColor: 'var(--primary-color)',
-                    border: 'none',
-                    
+                    border: 'none'
                   }}
                 >
-                  {loading ? 'Registrazione in corso...' : 'Completa Registrazione'}
+                  {loading ? <Loader /> : 'Completa Registrazione'} {/* Mostra il loader sul pulsante */}
                 </Button>
               )}
             </div>

@@ -22,12 +22,12 @@ const FACEBOOK_APP_ID = "IL-TUO-FACEBOOK-APP-ID";
 function App() {
   useEffect(() => {
     // Inizializzazione del Facebook SDK
-    window.fbAsyncInit = function() {
+    window.fbAsyncInit = function () {
       window.FB.init({
         appId: FACEBOOK_APP_ID,
         cookie: true,
         xfbml: true,
-        version: 'v18.0'
+        version: 'v18.0',
       });
     };
   }, []);
@@ -43,10 +43,10 @@ function App() {
             <Route path="/auth/user-register" element={<UserRegister />} />
             <Route path="/auth/admin-register" element={<AdminRegister />} />
 
-             {/* Rotta per admin in attesa di approvazione */}
+            {/* Rotta per admin in attesa di approvazione */}
             <Route path="/admin/pending-approval" element={<AdminPendingApproval />} />
-        
-            {/* Dashboard e relative funzionalità */}
+
+            {/* Rotte protette */}
             <Route
               path="/dashboard"
               element={
@@ -55,8 +55,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-
-            {/* Rotte protette condivise */}
             <Route
               path="/profile"
               element={
@@ -65,8 +63,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-            
-            {/* Rotte per funzionalità specifiche admin */}
             <Route
               path="/activities"
               element={
